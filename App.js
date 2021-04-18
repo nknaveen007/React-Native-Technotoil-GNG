@@ -14,29 +14,22 @@ import DrawerScreen from './screens/DrawerScreen'
 import NotificationScreen from './screens/NotificationScreen';
 import MyProfileScreeen from './screens/MyProfileScreen';
 import NewsScreen from './screens/NewsScreen';
-import BookingVideoCallScreen from './screens/BookingVideoCallScreen';
 import AboutusScreen from './screens/AboutusScreen';
 import Contactus from './screens/Contactus';
 import PrivicyPolicy from './screens/PrivicyPolicy';
-import UpcomingCall from './screens/UpcomingCall';
-import { Icon } from 'react-native-elements'
-import { MaterialCommunityIcons,FontAwesome5,Feather } from '@expo/vector-icons';
-import {useFonts} from 'expo-font';
-import { TouchableOpacity } from 'react-native';
 import TermsConditions from './screens/TermsConditions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
-import {AuthContext} from './components/Context'
+import {AuthContext,Context} from './components/Context'
 import instance from './src/api/Gng';
 import NewsWebView from './screens/NewsWebView';
-import { set } from 'react-native-reanimated';
-import ProfileScreen2 from './screens/ProfileScreen2';
 import PickerView from './screens/PickerView';
 import PickerView2 from './screens/PickerView2';
-import Pratice from './screens/Pratice';
 import BookAppoinment from './screens/BookAppoinment';
 import BookingHistory from './screens/BookingHistory';
-import SampleScreen from './screens/SampleScreen';
+import { Provider as PaperProvider } from 'react-native-paper';
+import NotificationMain from './screens/NotificationMain';
+
 
 
 
@@ -47,11 +40,8 @@ import SampleScreen from './screens/SampleScreen';
 const MainStack = createStackNavigator();
 const HomeStack =createStackNavigator();
 const DrwaweStack=createDrawerNavigator();
-const RootStack = createStackNavigator();
-const TopTabStack=createMaterialTopTabNavigator();
-const TabStack=createStackNavigator();
-const NewsStack = createStackNavigator();
-const PickerStack = createStackNavigator();
+
+
 
 
 
@@ -64,42 +54,13 @@ const MainStackScreens=()=>{
     <MainStack.Screen name='PickerView' component={PickerView} options={{headerShown:false}} />
     <MainStack.Screen name='PickerView2' component={PickerView2} options={{headerShown:false}} />
     <MainStack.Screen name="Terms" component={TermsConditions}  options={{headerShown:false}}/>
-    <MainStack.Screen name="Profile2" component={ProfileScreen2} options={{headerShown:false}}/>
+    
   </MainStack.Navigator>
 
   )
   }   
 
-  
 
-
-  const MaterialTopTabScreen=({navigation})=>{
-  
-    return(
-      <>
-      <View style={styles.headerContainer}>
-                   <AntDesign name="arrowleft" size={26} color="white" onPress={()=>navigation.goBack()}/>
-                   <Text style={styles.headingText}>Book Video Call</Text>
-              </View>
-
-    <TopTabStack.Navigator initialRouteName='Book' sceneContainerStyle={{backgroundColor:'white'}} tabBarOptions={{ showIcon:true,activeTintColor:'#A8062A',inactiveTintColor:'gray',indicatorStyle:{backgroundColor:'#A8062A',borderWidth:2,borderRadius:10,borderColor:'#A8062A',width:'45%',marginLeft:'2.5%'},labelStyle:{fontFamily:'monospace',fontSize:14,fontWeight:'900'}}}> 
-      <TopTabStack.Screen  name='Book' component={BookingVideoCallScreen}  options={{tabBarLabel:'Book Video call',
-      }}/>
-      <TopTabStack.Screen name='upcoming' options={{tabBarLabel:'upcoming'}} component={UpcomingCall}/>
-   </TopTabStack.Navigator>
-   </>
-    )
- 
-  }
-
-  const TabStackScreen=({navigation})=>{
-    return(
-      <TabStack.Navigator initialRouteName='Tab'  >
-       
-        <TopTabStack.Screen name='Tab' component={MaterialTopTabScreen} options={{headerShown:false}}/>
-      </TabStack.Navigator>
-    )
-  }
 
 
 
@@ -112,7 +73,8 @@ const MainStackScreens=()=>{
         <HomeStack.Screen name="Referal" component={ReferalScreen} options={{headerShown:false}}/>
          <HomeStack.Screen name="Booking" component={BookAppoinment} options={{headerShown:false}}/>
          <HomeStack.Screen name="History" component={BookingHistory} options={{headerShown:false}}/>
-         <HomeStack.Screen name="sample" component={SampleScreen} options={{headerShown:false}}/>
+         <HomeStack.Screen name="NotificationMain" component={NotificationMain} options={{headerShown:false}}/>
+        
       </HomeStack.Navigator>
     )
   }
@@ -130,11 +92,13 @@ const MainStackScreens=()=>{
 
   const ProfileStackScreen=()=>{
       return(
+        <PaperProvider>
       <MainStack.Navigator >
         <MainStack.Screen name='Picker1' component={MyProfileScreeen} options={{headerShown:false}} />
         <MainStack.Screen name='PickerView' component={PickerView} options={{headerShown:false}} />
         <MainStack.Screen name="PickerView2" component={PickerView2} options={{headerShown:false}}/>
       </MainStack.Navigator>
+      </PaperProvider>
     
       )
       } 
@@ -157,23 +121,14 @@ const DrawerStackScreen=()=>{
 }
 
 
-const RootStackScreens=()=>{
-  
-  
-    return(
-      <RootStack.Navigator initialRouteName='main' >
-      <RootStack.Screen name='main' component={MainStackScreens} options={{headerShown:false}}/>
-      <RootStack.Screen name='Drawer' component={DrawerStackScreen} options={{headerShown:false}}/>
-    </RootStack.Navigator>
-    )
- 
-}
+
 
 
 
 function App() {
   
-
+ 
+  
 
  
  const [isLoading, setIsLoading] = useState(true);
@@ -182,33 +137,20 @@ function App() {
 
 
 
- AsyncStorage.getItem('cid').then(value=>{
-  setUserToken(value) //we need to change this into value
+ AsyncStorage.getItem('cidfortoken').then(value=>{
+  setUserToken(value) 
 })
 
 
  const authContext = useMemo(() => ({
+  
+
     signIn: (number) => {
  
-    AsyncStorage.getItem('cid').then(value=>{
+    AsyncStorage.getItem('cidfortoken').then(value=>{
       setUserToken(value)
     })
-
-    
-  instance.get(`/CustomerPhone/${number}`).then(value=>{
-    const jsonValue= JSON.stringify({
-      name:value.data.fname,
-      email:value.data.email,
-      image:value.data.image
-   })
-   console.log('js',jsonValue)
-   AsyncStorage.setItem('userdata', jsonValue)
-  })
-    
-   
- 
- 
-},
+       },
 
   signOut: () => {
     AsyncStorage.clear()
@@ -239,13 +181,19 @@ if(isLoading){
   )
 }
 
+
  
  return(
+ 
+  <Context>
    <AuthContext.Provider value={authContext}>
   <NavigationContainer>
     {userToken !==null?<DrawerStackScreen/>:<MainStackScreens/>}
   </NavigationContainer>
   </AuthContext.Provider>
+  </Context>
+  
+  
  )
 
 }

@@ -32,7 +32,7 @@ const ProfileScreen = ({navigation,route}) => {
 
   const {signIn}=useContext(AuthContext)
 
-  const navigations = useNavigation();
+  
   useFocusEffect(
     useCallback(() => {  
       const onBackPress = () => {
@@ -102,8 +102,9 @@ const ProfileScreen = ({navigation,route}) => {
   const [show, setShow] = useState(false);
   const [dateofbirth1, setdateofbirth1] = useState('')
 
-  const [Time, setTime] = useState('')     //token time
-  const [CurrentDate, setCurrentDate] = useState('')   //token date
+  const [imagename, setimagename] = useState('')
+
+  
 
   const getOrdinalNum = (number) => {
     let selector;
@@ -122,19 +123,6 @@ const ProfileScreen = ({navigation,route}) => {
   
   
 
-    let cdate=date.getDate()
-    let cmonth=date.getMonth()
-   // let cmonth=date.getMonth()+1
-    let cyear=date.getUTCFullYear()
-    var monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    let dateName=getOrdinalNum(cdate)
-    let month=monthNames[cmonth]
-    let dateofbirth=`${dateName} ${month} ${cyear}`
-
-
-   
-  
-  
 
     
     
@@ -216,10 +204,11 @@ const ProfileScreen = ({navigation,route}) => {
       setloader(true)
       setVisible(true)
 
-      try{
+    try{
       const num = await AsyncStorage.getItem('number')
       const cid = await AsyncStorage.getItem('cid')
       
+
       setlocalnumber(num)
       setlocalcid(cid)
 
@@ -248,12 +237,13 @@ const ProfileScreen = ({navigation,route}) => {
         if (status !== 'granted') {
           alert('Sorry, we need camera roll permissions to make this work!');
         }
+
       }
     })();
 
    
     
-  },[pickImage]);
+  },[pickImage,pickCamera]);
 
   const pickImage = async () => {
     setVisiblepic(false)
@@ -262,9 +252,13 @@ const ProfileScreen = ({navigation,route}) => {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
+      
     });
-
+    console.log(result);
     if (!result.cancelled) {
+      let name= imgstr()
+
+      setimagename(name)
       setImage(result.uri);
       
     }
@@ -275,17 +269,24 @@ const ProfileScreen = ({navigation,route}) => {
     let result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      aspect: [4, 4],
+      aspect:[1,1],
       quality: 1,
-     
+      
     });
 
     console.log(result);
 
     if (!result.cancelled) {
+      let name= imgstr()
+      setimagename(name)
       setImage(result.uri);
       }
   };
+
+  const imgstr=()=>{
+    var newDate = new Date();
+    return ' '+parseInt(newDate.getMonth()+1)+'-'+newDate.getDate()+'-'+newDate.getFullYear()+'-'+newDate.getTime()
+    }
 
   const [loaded] = useFonts({
     RobotoSlab: require('../assets/fonts/RobotoSlab-Regular.ttf'),
@@ -302,6 +303,7 @@ const ProfileScreen = ({navigation,route}) => {
   const validation=async()=>{
 
       if(name===''||lastname===''||address===''||zipcode===''||email===''){
+
         ToastAndroid.showWithGravityAndOffset(
             "All Fields Are Required",
             ToastAndroid.SHORT,
@@ -311,44 +313,43 @@ const ProfileScreen = ({navigation,route}) => {
           );
       }
       else{
-        
-
-        
-          const valid=validator.isEmail(email)
+         const valid=validator.isEmail(email)
            if(valid===true){
             if(checked){
-              let current = new Date();
-              setCurrentDate(current.toLocaleDateString())
 
               try{
+                if(imagename===""){
+                  setimagename(image)
+                }
                 if(image==='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIhKgbgB5i3hrMiDIftvEXUTW6-T8TYcaz3g&usqp=CAU'){
-                  setImage('https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?k=6&m=1214428300&s=612x612&w=0&h=rvt5KGND3z8kfrHELplF9zmr8d6COZQ-1vYK9mvSxnc=')
+                  setImage('https://www.freepnglogos.com/uploads/camera-logo-png/clipart-camera-icon-logo-circle-7.png')
+                  setimagename(imgstr())
                 }else{
                   null
                 }
-                setloader(true)
+  
                 const formData = new FormData();
                 // formData.append('data', JSON.stringify(data));
-                formData.append('firstname', name,);
+                formData.append('firstname', name);
                 formData.append('lastname', lastname);
                 formData.append('contact',localnumber);
                 formData.append('email',email);
                 formData.append('pincode',zipcode);
                 formData.append('address',address);
-                formData.append('dob',dateofbirth);
-               // formData.append('image',image);
+                formData.append('dob',dateofbirth1);
                 formData.append('country',countryid);
                 formData.append('state',stateid);
                 formData.append('status','1'); 
                 formData.append('image', {
-                  uri: image,// ,//Your Image File Path
+                  uri: image,
                  type: 'image/jpeg', 
-                 name: "image.jpg",
-               });
+                 name: `${imagename}.jpg`,
+              });
+               
                         setloader(true)
                         setVisible(true)
                       await  axios({
-                          url    : `https://develop-c.cheshtainfotech.com/CEA/api/customer`,
+                          url    : `https://develop-c.cheshtainfotech.com/CEA/api/customer/${localcid}`,
                           method : 'POST',
                           data   : formData,
                           headers: {
@@ -356,56 +357,45 @@ const ProfileScreen = ({navigation,route}) => {
                                        'Authorization':'@CEAUTH09#'
                                    }
                                })
-                               .then(async function (response) {
-                                       console.log("response :", response.data);
-                                       console.log(response.data.cid)
-                                     await  AsyncStorage.setItem('cid', response.data.cid)
-                                       const cid1=response.data.cid
-                                       setlocalcid(cid1)
-                                       
-                                       
-                                       
-                                                     
-
-                                       const jsonValue1 = JSON.stringify({
-                                        name:name,
-                                        email:email,
-                                        image:image
-                                    })
-                                    await AsyncStorage.setItem('userdata', jsonValue1)
-                                                            console.log('save Scussfully')
-                   
-                                     
+                               .then(function (response) {
+                                       console.log("response :", response);
+                                       AsyncStorage.setItem('cidfortoken', localcid).then(()=>{
+                                         console.log('set')
+                                       })   
+                                    
                               })
                               .catch(function (error) {
-                                       console.log(error);
+                                       console.log('profile error',error);
                               })
-                               }catch(err){
+                              const jsonValue = JSON.stringify({
+                                name:name,
+                                email:email,
+                                image:image
+                            })
+                           await  AsyncStorage.setItem('userdata', jsonValue) 
+                           
+                              
+                              console.log('signin',localnumber,localcid)
+                              setloader(false)
+                              ToastAndroid.showWithGravityAndOffset(
+                               "Profile Uploaded",
+                               ToastAndroid.LONG,
+                               ToastAndroid.CENTER,
+                               25,
+                               50
+                             );
+                             signIn(localnumber) 
+                          }catch(err){
                             
                             console.log(err)
                             alert('Something Goes Wrong')
                           } 
-                        
-                          setloader(false)
-                           setVisible(false)
-
-                           console.log('signin',localnumber,localcid)
-                           signIn(localnumber)
-                           ToastAndroid.showWithGravityAndOffset(
-                            "Profile Uploaded",
-                            ToastAndroid.LONG,
-                            ToastAndroid.CENTER,
-                            25,
-                            50
-                          );
+                          
+                                
+                           
+                             
             }else{
-              ToastAndroid.showWithGravityAndOffset(
-                "Please Accept The Terms And Conditions",
-                ToastAndroid.LONG,
-                ToastAndroid.CENTER,
-                25,
-                50
-              );
+             alert('Please Select The Terms & Conditions')
             }
            }
            else{
@@ -430,7 +420,7 @@ const ProfileScreen = ({navigation,route}) => {
        <SafeAreaView style={styles.mainContainer} >
             <View style={styles.headerContainer}>
           <View style={{flexDirection:'row'}}>
-          <AntDesign name="arrowleft" size={26} color="#A8062A" style={{alignSelf:'center'}} onPress={()=>navigation.goBack()}/>
+         
                    <Text style={styles.headingText}>Profile</Text>
           </View>
                    
@@ -519,7 +509,7 @@ const ProfileScreen = ({navigation,route}) => {
                  <TextInput
                  type="flat"
                  mode='outlined'
-                 label='Last Name'
+                 label='Last Name*'
                  style={styles.inputField}
                     autoCorrect={false}
                     

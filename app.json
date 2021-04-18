@@ -29,6 +29,7 @@
       },
       "package": "com.gng.myapp",
       "versionCode": 1
+      
     },
     "web": {
       "favicon": "./assets/favicon.png"

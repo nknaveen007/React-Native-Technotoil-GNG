@@ -1,19 +1,21 @@
-import React,{useState,useEffect,useRef,useCallback,useContext } from 'react'
-import  {BackHandler,TouchableOpacity,StyleSheet, Text, View,StatusBar,Platform,ToastAndroid,SafeAreaView,Image, ScrollView,ActivityIndicator} from 'react-native'
+import React,{useState,useEffect,useRef,useContext } from 'react'
+import  {TouchableOpacity,StyleSheet, Text, View,StatusBar,Platform,ToastAndroid,SafeAreaView,Image, ScrollView,ActivityIndicator,FlatList} from 'react-native'
 import * as ImagePicker from 'expo-image-picker';
-import Constants from 'expo-constants';
 import { AntDesign,FontAwesome5 } from '@expo/vector-icons';
 import {useFonts} from 'expo-font';
-import {Picker} from 'native-base'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import instance from '../src/api/Gng';
 import validator from 'validator';
-import {Overlay,CheckBox } from 'react-native-elements'
+import {Overlay, } from 'react-native-elements'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {CommonActions,useNavigation,useFocusEffect} from '@react-navigation/native'
-import {AuthContext} from '../components/Context'
-import { TextInput,Divider } from 'react-native-paper';
+import {AuthContext,StateContext} from '../components/Context'
+import { TextInput,Divider,Dialog,Portal,Searchbar,List} from 'react-native-paper';
+
+
+
+
+
 
 
 
@@ -27,9 +29,16 @@ const ProfileScreen = ({navigation,route}) => {
   const [statedata, setstatedata] = useState({StateName:'State'})
 
   const {authContext}=useContext(AuthContext)
-
+  const [ConName,ConImage,ConLastName,setConName,setConImage,setConLastName]=useContext(StateContext)
+  
   
 
+  
+  const [dialougVisible1, setdialougVisible1] = useState(false) //dialoug1
+  const hideDialog1 = () => setdialougVisible1(false);
+
+  const [dialougVisible2, setdialougVisible2] = useState(false) //dialoug2
+  const hideDialog2 = () => setdialougVisible2(false);
 
    
   const[localnumber,setlocalnumber]=useState('')
@@ -42,7 +51,7 @@ const ProfileScreen = ({navigation,route}) => {
   }
  
    
-  const [loader,setloader]=useState(false) //loader
+  const [loader,setloader]=useState(false); //loader
   const [visible, setVisible] = useState(false);  //overly
 
     const [userList,setUserList]=useState({})
@@ -58,8 +67,8 @@ const ProfileScreen = ({navigation,route}) => {
     const [countryName, setcountryName] = useState('')
     const [Phone, setPhone] = useState('')
     
-
-
+  const [type, settype] = useState('')
+   const [imagename, setimagename] = useState('')
       //statelist
     const [countryList, setCountrylist] = useState([{}]);//countrylist
     const [stateList, setStatelist] = useState([]);  //statelist
@@ -71,6 +80,15 @@ const ProfileScreen = ({navigation,route}) => {
     const input5=useRef()
     const input6=useRef()
 
+    const [filterData1, setfilterData1] = useState([])
+    const [masterData1, setmasterData1] = useState([])//picker1
+    const [search1, setsearch1] = useState('')
+    
+
+    const [filterData2, setfilterData2] = useState([])
+    const [masterData2, setmasterData2] = useState([])//picker2
+    const [search2, setsearch2] = useState('')
+    
 
     const [checked,setchecked]=useState(false) 
     const [MailError, setMailError] = useState(false)
@@ -158,96 +176,201 @@ const ProfileScreen = ({navigation,route}) => {
         showMode('time');
       };
 
+
+useEffect(() => {
+  (async()=>{
+               
+    try{
+      setloader(true)
+      setVisible(true)
+      const num = await AsyncStorage.getItem('number')
+      const cid1 = await AsyncStorage.getItem('cid')
+     
+      console.log('parse',num ,cid1)
+      setlocalnumber(num)
+      setlocalcid(cid1)
+      
+      
+   const result1=await instance.get(`/customer/${cid1}`)
+   const country=await instance.get(`/country/${result1.data.country}`)
+   
+   const state=await instance.get(`/stateById/${result1.data.state}`)
+
+   const statelistResponce=await instance.get(`/state/${country.data.countryCode}`)
+   setStatelist(statelistResponce.data) 
+
+   
+   setcountrydata({countryName:country.data.countryName})
+   setstatedata({StateName:state.data[0].StateName})
+
+   console.log('customer',result1.data)
+   console.log('image y:',result1.data.image)
+
+   setUserList(result1.data)
+   setname(result1.data.fname)
+   setemail(result1.data.email)
+   setaddress(result1.data.address)
+   setlastname(result1.data.lname)
+   setstateid(result1.data.state)
+   setcountryid(result1.data.country)
+   setImage(result1.data.image)
+   setzipcode(result1.data.pincode)
+   setPhone(result1.data.contact)
+   setdateofbirth1(result1.data.dob)
+   //setdob(result1.data.dob)
+
+                              setConName(result1.data.fname);
+                              setConImage(result1.data.image);
+                              setConLastName(result1.data.lname);
+              
+              console.log('userlist :', result1.data)
+              const jsonValue1 = JSON.stringify({
+                  name:result1.data.fname,
+                  email:result1.data.email,
+                  image:result1.data.image
+              })
+              await AsyncStorage.setItem('userdata',jsonValue1)
+  
+   
+              const countryresponce=await instance.get(`country/${result1.data.country+1}`)
+              setcountryName(countryresponce.data.countryName)
+              setloader(false)
+      setVisible(false)
+            }catch(err){
+  console.log(err)
+
+    }})();
+
+    (async()=>{
+            
+      try{
+
+        setloader(true)
+      setVisible(true)
+
+        const countrylistResponce=await instance.get('/country')
+          
+          setCountrylist(countrylistResponce.data)
+          const cid1 = await AsyncStorage.getItem('cid')
+          const result1=await instance.get(`/customer/${cid1}`)
+          
+ const country=await instance.get(`/country/${result1.data.country}`)
+ const statelistResponce=await instance.get(`/state/${country.data.countryCode}`)
+ setStatelist(statelistResponce.data) 
+ 
+ setloader(false)
+ setVisible(false)
+        }catch(err){
+          console.log(err)
+        }
+       
+
+      
+    })();
+}, [])
       
    useEffect(() => {
-
+   
+    
     const unsubscribe = navigation.addListener('focus', async() => {
-      (async()=>{
-        setloader(true)
-            setVisible(true)
-            try{
-              const countrylistResponce=await instance.get('/country')
-                setCountrylist(countrylistResponce.data)
-  
-                const result1=await instance.get(`/customer/${cid1}`)
-                console.log(result1.data)
-       const country=await instance.get(`/country/${result1.data.country}`)
-       const statelistResponce=await instance.get(`/state/${country.data.countryCode}`)
-       setStatelist(statelistResponce.data) 
-                
-              setloader(false)
-              setVisible(false)
-              }catch(err){
-                console.log(err)
-              }
-             
-      
+   
             
-          })();
-          (async()=>{
+              (async()=>{
                
-        try{
-          setloader(true)
-          setVisible(true)
-          const num = await AsyncStorage.getItem('number')
-          const cid1 = await AsyncStorage.getItem('cid')
-         
-          console.log('parse',num ,cid1)
-          setlocalnumber(num)
-          setlocalcid(cid1)
-          
-          
-       const result1=await instance.get(`/customer/${cid1}`)
-       const country=await instance.get(`/country/${result1.data.country}`)
-       
-       const state=await instance.get(`/stateById/${result1.data.state}`)
-  
-       const statelistResponce=await instance.get(`/state/${country.data.countryCode}`)
-       console.log('stateresponce',statelistResponce.data)
-       setStatelist(statelistResponce.data) 
-  
-       
-       setcountrydata({countryName:country.data.countryName})
-       setstatedata({StateName:state.data[0].StateName})
-  
-       console.log('customer',result1.data)
-       console.log('image y:',result1.data.image)
-  
-       setUserList(result1.data)
-       setname(result1.data.fname)
-       setemail(result1.data.email)
-       setaddress(result1.data.address)
-       setlastname(result1.data.lname)
-       setstateid(result1.data.state)
-       setcountryid(result1.data.country)
-       setImage(result1.data.image)
-       setzipcode(result1.data.pincode)
-       setPhone(result1.data.contact)
-       
-     
-  
-  
-       
-       setdob(result1.data.dob)
+                try{
+                  setloader(true)
+                  setVisible(true)
+                  const num = await AsyncStorage.getItem('number')
+                  const cid1 = await AsyncStorage.getItem('cid')
+                 
+                  console.log('parse',num ,cid1)
+                  setlocalnumber(num)
+                  setlocalcid(cid1)
                   
-                  console.log('userlist :', result1.data)
-                  const jsonValue1 = JSON.stringify({
-                      name:result1.data.fname,
-                      email:result1.data.email,
-                      image:result1.data.image
-                  })
-                  await AsyncStorage.setItem('userdata',jsonValue1)
-      
-       
-                  const countryresponce=await instance.get(`country/${result1.data.country+1}`)
-                  console.log('country name:',countryresponce.data)
-                  setcountryName(countryresponce.data.countryName)
-                  setloader(false)
+                  
+               const result1=await instance.get(`/customer/${cid1}`)
+               const country=await instance.get(`/country/${result1.data.country}`)
+               
+               const state=await instance.get(`/stateById/${result1.data.state}`)
+            
+               const statelistResponce=await instance.get(`/state/${country.data.countryCode}`)
+               setStatelist(statelistResponce.data) 
+            
+               
+               setcountrydata({countryName:country.data.countryName})
+               setstatedata({StateName:state.data[0].StateName})
+            
+               console.log('customer',result1.data)
+               console.log('image y:',result1.data.image)
+            
+               setUserList(result1.data)
+               setname(result1.data.fname)
+               setemail(result1.data.email)
+               setaddress(result1.data.address)
+               setlastname(result1.data.lname)
+               setstateid(result1.data.state)
+               setcountryid(result1.data.country)
+               setImage(result1.data.image)
+               setzipcode(result1.data.pincode)
+               setPhone(result1.data.contact)
+               setdateofbirth1(result1.data.dob)
+               //setdob(result1.data.dob)
+                          
+                          console.log('userlist :', result1.data)
+                          const jsonValue1 = JSON.stringify({
+                              name:result1.data.fname,
+                              email:result1.data.email,
+                              image:result1.data.image
+                          })
+                          await AsyncStorage.setItem('userdata',jsonValue1)
+              
+               
+                          const countryresponce=await instance.get(`country/${result1.data.country+1}`)
+                          setcountryName(countryresponce.data.countryName)
+                          setloader(false)
                   setVisible(false)
-                }catch(err){
-      console.log(err)
-        }})();
-         
+                        }catch(err){
+              console.log(err)
+            
+                }})();
+            
+                (async()=>{
+                        
+                  try{
+            
+                    setloader(true)
+                  setVisible(true)
+            
+                    const countrylistResponce=await instance.get('/country')
+                      setCountrylist(countrylistResponce.data)
+
+                      setfilterData1(countrylistResponce.data)
+                      setmasterData1(countrylistResponce.data)
+
+
+                      const cid1 = await AsyncStorage.getItem('cid')
+                      const result1=await instance.get(`/customer/${cid1}`)
+                      
+             const country=await instance.get(`/country/${result1.data.country}`)
+             const statelistResponce=await instance.get(`/state/${country.data.countryCode}`)
+             setStatelist(statelistResponce.data) 
+             setfilterData2(statelistResponce.data)
+             setmasterData2(statelistResponce.data)
+
+            
+             
+        
+       
+                      
+             setloader(false)
+             setVisible(false)
+                    }catch(err){
+                      console.log(err)
+                    }
+                   
+            
+                  
+                })();
              
       });
       
@@ -257,38 +380,42 @@ const ProfileScreen = ({navigation,route}) => {
       };
 
      
-
+     
     
 
    }, [navigation]) 
 
-   useEffect(() => {
-
-    if (route.params?.countryName) {
-     
-      setcountrydata({countryName:route.params.countryName});
-      setcountryid(route.params.countryId);
-     (async()=>{
-      setloader(true)
-      setVisible(true)
-      
-      const statelistResponce=await instance.get(`/state/${route.params.countryCode}`)
- 
-      setStatelist(statelistResponce.data) 
-     
-      
-  setloader(false)
-  setVisible(false)
-  setloader(true)
-     })();
-      
+   const searchFilter1=(text)=>{
+    if(text){
+        const newData=masterData1.filter((item)=>{
+            const itemData=item.countryName ? item.countryName.toUpperCase():''.toUpperCase();
+            const textData=text.toUpperCase();
+            return itemData.indexOf(textData)>-1;
+        })
+        setfilterData1(newData)
+        setsearch1(text)
+    }else{
+        setfilterData1(masterData1);
+        setsearch1(text);
     }
+}
 
-    if(route.params?.StateName){
-      setstatedata({StateName:route.params.StateName})
-      setstateid(route.params.stateId)
-    }
-  }, [route.params?.countryName,route.params?.StateName]);
+const searchFilter2=(text)=>{
+  if(text){
+      const newData=masterData2.filter((item)=>{
+          const itemData=item.StateName ? item.StateName.toUpperCase():''.toUpperCase();
+          const textData=text.toUpperCase();
+          return itemData.indexOf(textData)>-1;
+      })
+      setfilterData2(newData)
+      setsearch2(text)
+  }else{
+      setfilterData2(masterData2);
+      setsearch2(text);
+  }
+}
+
+  
 
     
   useEffect(() => {
@@ -299,9 +426,11 @@ const ProfileScreen = ({navigation,route}) => {
      setMode('Date')
       if (Platform.OS !== 'web') {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+       
         if (status !== 'granted') {
-          alert('Sorry, we need camera roll permissions to make this work!');
+          alert('Sorry, we need Image roll permissions to make this work!');
         }
+       
       }
     })();
 
@@ -314,9 +443,15 @@ const ProfileScreen = ({navigation,route}) => {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
+      
     });
 
     if (!result.cancelled) {
+      console.log('gallery image',result)
+
+     let name= imgstr()
+     
+     setimagename(name)
      setImage(result.uri);
      
       
@@ -325,20 +460,28 @@ const ProfileScreen = ({navigation,route}) => {
 
   const pickCamera = async () => {
     setVisiblepic(false)
-    let result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 4],
-      quality: 1,
-     
-    });
+    
+         let result =  await ImagePicker.launchCameraAsync({
+              mediaTypes:ImagePicker.MediaTypeOptions.Images,
+              allowsEditing:true,
+              aspect:[1,1],
+              quality:0.5
+          });
 
     
 
     if (!result.cancelled) {
+      console.log('camera image',result)
+      let name= imgstr()
+     setimagename(name)
      setImage(result.uri);
-      }
+    }
   };
+
+  const imgstr=()=>{
+    var newDate = new Date();
+    return ' '+parseInt(newDate.getMonth()+1)+'-'+newDate.getDate()+'-'+newDate.getFullYear()+'-'+newDate.getTime()
+    }
 
   const [loaded] = useFonts({
     RobotoSlab: require('../assets/fonts/RobotoSlab-Regular.ttf'),
@@ -351,6 +494,8 @@ const ProfileScreen = ({navigation,route}) => {
     return null;
   }
 
+
+  
 
   const validation=async()=>{
 
@@ -370,52 +515,64 @@ const ProfileScreen = ({navigation,route}) => {
           const valid=validator.isEmail(email)
            if(valid===true){
               try{
-  
+                setloader(true)
+                setVisible(true)
+                
+              if(imagename===""){
+                setimagename(image)
+              }
+              
+               
+               
                 const formData = new FormData();
-                // formData.append('data', JSON.stringify(data));
+                
+               
                 formData.append('firstname', name);
                 formData.append('lastname', lastname);
                 formData.append('contact',localnumber);
                 formData.append('email',email);
                 formData.append('pincode',zipcode);
-                formData.append('address',address);
-                formData.append('dob',dateofbirth);
-               // formData.append('image',image);
+                formData.append('address',address); 
+                formData.append('dob',dateofbirth1);
                 formData.append('country',countryid);
                 formData.append('state',stateid);
-                formData.append('status','1'); 
-                console.log(image);
+                formData.append('status','1');
                 formData.append('image', {
-                           uri: image,// ,//Your Image File Path
-                          type: 'image/jpeg', 
-                          name: "image.jpg",
-                        });
-                        setloader(true)
-                        setVisible(true)
+                  uri: image,
+                  type: "image/jpeg",
+                  name: `${imagename}.jpg`,
+                 
+              }); 
+               
+                       
                       await  axios({
                           url    : `https://develop-c.cheshtainfotech.com/CEA/api/customer/${localcid}`,
                           method : 'POST',
                           data   : formData,
                           headers: {
+                            "Accept": "application/json, text/plain, */*",
                                        'Content-Type': 'multipart/form-data',
                                        'Authorization':'@CEAUTH09#'
                                    }
                                })
                                .then(function (response) {
-                                       console.log("response :", response.data);
-                                       const jsonValue = JSON.stringify({
-                                        name:name,
-                                        email:email,
-                                        image:image
-                                    })
-                                     AsyncStorage.setItem('userdata', jsonValue)          
-                                    
+                                       console.log(response)
+                                         
                               })
                               .catch(function (error) {
                                        console.log('Myprofile error',error);
                               })
+                              setConName(name);
+                              setConImage(image);
+                              setConLastName(lastname);
                               
-                              
+                              const jsonValue = JSON.stringify({
+                                name:name,
+                                email:email,
+                                image:image
+                            })
+                          await AsyncStorage.setItem('userdata', jsonValue)          
+                             
                             setloader(false)
                     
                           }catch(err){
@@ -427,7 +584,7 @@ const ProfileScreen = ({navigation,route}) => {
                           setloader(false)
                            setVisible(false)
                            ToastAndroid.showWithGravityAndOffset(
-                            "Please Updated Seccessfully",
+                            "Profile Updated Seccessfully",
                             ToastAndroid.LONG,
                             ToastAndroid.CENTER,
                             25,
@@ -515,7 +672,7 @@ const ProfileScreen = ({navigation,route}) => {
 
 </Overlay>
 
-          
+
           
 
           <View style={styles.InputContainer}>
@@ -588,7 +745,7 @@ paddingRight:'5%'}}>
    {dateshow?
   <Text style={{fontSize:15,
 marginVertical:'1.5%',
-fontFamily:'Gotham',color:'black'}}>{dob}</Text>:null}
+fontFamily:'Gotham',color:'black'}}>{dateofbirth1}</Text>:null}
 
   {datetextShow?<Text  style={{fontSize:15,
 marginVertical:'1.5%',
@@ -639,10 +796,129 @@ maximumDate={new Date().setFullYear(new Date().getFullYear()-10)}
                       }
                     
                      />
-                    
+
+        <Portal>
+      <Dialog visible={dialougVisible1} onDismiss={hideDialog1}>
+        <Dialog.ScrollArea>
+          
+          
+
+              <Searchbar
+              style={{marginVertical:'3%',width:'95%',alignSelf:'center'}}
+      placeholder="Search"
+      onChangeText={value=>{searchFilter1(value)}}
+      value={search1}
+      selectionColor='#A8062A'
+      />
+
+        <FlatList
+          data={filterData1}
+          keyExtractor={item => item.countryId}
+          renderItem={({item})=>{
+              return(
+                 <>
+                <List.Item
+                title={item.countryName}
+                onPress={()=>
+                    {
+                     setcountrydata({countryName:item.countryName});
+                      setcountryid(item.countryId);
+                      setdialougVisible1(false);
+                      try {
+                        (async()=>{
+                          setloader(true)
+                          setVisible(true)
+                         
+                          const statelistResponce=await instance.get(`/state/${item.countryCode}`)
+                     
+                          setStatelist(statelistResponce.data) 
+                          setfilterData2(statelistResponce.data)
+                          setmasterData2(statelistResponce.data)
+                          setstatedata({StateName:'State'})
+                         
+                            
+                        
+                            
+                        
+                          
+                      setloader(false)
+                      setVisible(false)
+                      
+                         })();
+                      } catch (error) {
+                        console.log(error)
+                      }
+                      
+                        
+                     
+
+}
+                    }
+                />
+                <Divider />
+                
+                </>
+              )
+          }}
+        />
+        
+      
+          
+        </Dialog.ScrollArea>
+      </Dialog>
+    </Portal>            
+
+
+
+    <Portal>    
+      <Dialog visible={dialougVisible2} onDismiss={hideDialog2}>
+        <Dialog.ScrollArea>
+          
+        <Searchbar
+              style={{marginVertical:'3%',width:'95%',alignSelf:'center'}}
+      placeholder="Search"
+      onChangeText={value=>{searchFilter2(value)}}
+      value={search2}
+      returnKeyType='done'
+      selectionColor='#A8062A'
+      />
+
+        <FlatList
+          data={filterData2}
+          keyExtractor={item => item.stateId}
+          renderItem={({item})=>{
+              return(
+                 <>
+                <List.Item
+                title={item.StateName}
+                
+                onPress={()=>
+                    {
+                      setstatedata({StateName:item.StateName})
+                      setstateid(item.stateId)
+                      setdialougVisible2(false)
+                      
+                       
+}
+                    }
+                />
+                <Divider />
+                </>
+              )
+          }}
+        />
+
+             
+        
+      
+          
+        </Dialog.ScrollArea>
+      </Dialog>
+    </Portal> 
                     
              <TouchableOpacity style={[styles.pickerInput,{marginBottom:'5%'}]} onPress={()=>{
-               navigation.navigate('PickerView',{countrylist:countryList,navView:'Picker1'})
+
+               setdialougVisible1(true)
                setloader(false)
                }}>
                 <Text style={[{fontFamily:'Gotham',fontSize:16},{color:(countrydata.countryName==='Country*')?"gray":"black"}]} >{countrydata.countryName}</Text>
@@ -650,7 +926,7 @@ maximumDate={new Date().setFullYear(new Date().getFullYear()-10)}
 
 
              <TouchableOpacity style={[styles.pickerInput,{marginBottom:'5%'}]} onPress={()=>{
-               navigation.navigate('PickerView2',{stateList:stateList,navView:'Picker1'})}}>
+              setdialougVisible2(true) }}>
                 <Text style={[{fontFamily:'Gotham',fontSize:16},{color:(statedata.StateName==='State*')?"gray":"black"}]} >{statedata.StateName}</Text>
              </TouchableOpacity>   
 

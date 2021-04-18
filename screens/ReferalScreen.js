@@ -7,24 +7,7 @@ import { Divider} from 'react-native-paper';
 
 const ReferalScreen = ({navigation}) => {
 
-    const onShare = async () => {
-        try {
-          const result = await Share.share({
-            message: 'Download this app https://play.google.com/store/apps/details?id=com.e.FanBib',
-          });
-          if (result.action === Share.sharedAction) {
-            if (result.activityType) {
-              // shared with activity type of result.activityType
-            } else {
-              // shared
-            }
-          } else if (result.action === Share.dismissedAction) {
-            // dismissed
-          }
-        } catch (error) {
-          alert(error.message);
-        }
-      };
+    
 
     const [loaded] = useFonts({
         RobotoSlab: require('../assets/fonts/RobotoSlab-Regular.ttf'),

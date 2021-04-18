@@ -1,17 +1,41 @@
-import React,{useState,useEffect} from 'react'
-import { StyleSheet, Text, View,FlatList,ActivityIndicator,Image } from 'react-native'
+import React,{useState,useEffect,useCallback} from 'react'
+import { StyleSheet, Text, View,FlatList,ActivityIndicator,Image ,BackHandler} from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Overlay } from 'react-native-elements'
-import axios from 'axios';
-import { AntDesign,FontAwesome5 } from '@expo/vector-icons';
+import { AntDesign,MaterialIcons,Entypo,Ionicons } from '@expo/vector-icons';
 import instance from '../src/api/Gng';
 import { Card,Divider} from 'react-native-paper';
 import {useFonts} from 'expo-font';
+import {useFocusEffect} from '@react-navigation/native'
+
 
 const BookingHistory = ({navigation}) => {
     
   const [loader,setloader]=useState(false) //loader
   const [visible, setVisible] = useState(false);  //overly
   const [bookinglist, setbookinglist] = useState([])
+
+  const [NotesVisible, setNotesVisible] = useState(true)
+
+   
+  useFocusEffect(
+    useCallback(() => {  
+      const onBackPress = () => {
+       navigation.navigate('Home')
+       return true
+      };
+
+      
+      BackHandler.addEventListener(
+        'hardwareBackPress', onBackPress
+      );
+  
+      return () =>
+        BackHandler.removeEventListener(
+          'hardwareBackPress', onBackPress
+        );
+    }, [])
+  );
 
 
   useEffect(() => {
@@ -20,8 +44,9 @@ const BookingHistory = ({navigation}) => {
         try{
         setloader(true)
         setVisible(true)
-        
-        const BookedResult=await instance.get('/VideoBooking')
+        const cid1 = await AsyncStorage.getItem('cid')
+        const BookedResult=await instance.get(`/VideoBooking/${cid1}`)
+        console.log(BookedResult.data)
         setbookinglist(BookedResult.data)
         setloader(false)
         }catch(err){
@@ -64,7 +89,7 @@ let splitEndTime=''
             
             <View style={styles.headerContainer}>
           <View style={{flexDirection:'row'}}>
-          <AntDesign name="arrowleft" size={26} color="#A8062A" style={{alignSelf:'center'}} onPress={()=>navigation.goBack()}/>
+          <AntDesign name="arrowleft" size={26} color="#A8062A" style={{alignSelf:'center'}} onPress={()=>navigation.navigate('Home')}/>
                    <Text style={styles.headingText}>My Bookings</Text>
           </View>
                    
@@ -76,13 +101,20 @@ let splitEndTime=''
                <ActivityIndicator size="large" color="gray" />
       </Overlay>:null}
 
+
+{bookinglist.message==='There Is No Booking Available'?
+
+
+           <Text style={{marginVertical:'5%',fontFamily:'Gotham',color:'gray',marginLeft:'5%',alignSelf:'center',marginTop:'70%',fontSize:16}}>{bookinglist?.message} !</Text>
+        :
+       
       <FlatList
       data={bookinglist}
       keyExtractor={(item,index)=>item.book_datetime}
       style={{marginBottom:'5%'}}
       showsVerticalScrollIndicator={false}
       renderItem={({item})=>{
-        if(item.id_users_customer==='4'){
+       
           date=item.start_datetime
           date1=item.end_datetime
           splitFulldate=date.substr(0,10)
@@ -91,33 +123,52 @@ let splitEndTime=''
           splitStartTime=date.substr(11,5)
           splitEndTime=date1.substr(11,5)
           monthname=monthNames[splitMonth-1]
-
+        
+     
           
          
          return(
-          <Card style={{width:'95%',alignSelf:'center',marginBottom:'3%'}}>
-          <Card.Content  style={{flexDirection:'row'}}>
-            <View style={{marginRight:'18%',alignSelf:'center',backgroundColor:'#D4F1F4',padding:'4%',borderRadius:10}}>
+           
+          <Card style={{width:'95%',alignSelf:'center',marginVertical:'1.5%'}}>
+          <Card.Content>
+        <View style={{flexDirection:'row'}}>
+            <View style={{marginRight:'5%',backgroundColor:'#D4F1F4',padding:'4%',borderRadius:10,height:'75%'}}>
                 <Text style={{fontFamily:'GothamBold',paddingBottom:'2%'}}>{monthname}</Text>
                 <Text style={{fontFamily:'Gotham',color:'gray',textAlign:'center',fontSize:16}}>{splitDate}</Text>
             </View>
-            <View>
-                <Text style={{fontFamily:'GothamBold',paddingBottom:'2%'}}>Name   : <Text style={{fontFamily:'Gotham',color:'gray'}}>{item.bookingName}</Text></Text>
-                <Text style={{fontFamily:'GothamBold',paddingBottom:'2%'}}>Mobile : <Text style={{fontFamily:'Gotham',color:'gray'}}>{item.bookingContact}</Text></Text>
-                <Text style={{fontFamily:'GothamBold',paddingBottom:'2%'}}>Time    : <Text style={{fontFamily:'Gotham',color:'gray'}}>{splitStartTime} - {splitEndTime}</Text></Text>
-                <Text style={{fontFamily:'GothamBold',width:200}}>Description  : <Text style={{fontFamily:'Gotham',color:'gray'}}>{item.notes}</Text></Text>
-            </View>
+
+            
+            <View style={{width:'70%'}}>   
+              <View style={styles.dataView}>
+                <MaterialIcons name="perm-identity" size={22} color="black" />
+                <Text style={{fontFamily:'Gotham',color:'gray',textTransform:'capitalize',alignSelf:'center',marginLeft:'4%'}}>{item.bookingName}</Text> 
+              </View>
+
+              <View style={styles.dataView}>
+                <Entypo name="mobile" size={22} color="black" />
+                <Text style={{fontFamily:'Gotham',color:'gray',alignSelf:'center',marginLeft:'4%'}}>{item.bookingContact}</Text>
+              </View>
+
+              <View style={styles.dataView}>
+                <Ionicons name="time-outline" size={22} color="black" />
+                <Text style={{fontFamily:'Gotham',color:'gray',alignSelf:'center',marginLeft:'4%'}}>{splitStartTime} - {splitEndTime}</Text> 
+              </View>
+
+      </View>
+      </View>
+      {item.notes!==''?
+      <View style={{ flexDirection:'row'}}>
+                <MaterialIcons name="description" size={22} color="black" />
+                <Text style={{fontFamily:'Gotham',color:'gray',alignSelf:'center',marginLeft:'4%',lineHeight:18}}>{item.notes}</Text>
+              </View>:null}
             
           </Card.Content>
         </Card>
          )
-        }else{
-         null
-         
-        }
+       
           
       }}
-      />
+      />}
 
             
         </View>
@@ -142,4 +193,8 @@ headingText:{
     marginLeft:'5%',
     color:'#A8062A'
 },
+dataView:{
+  flexDirection:'row',
+  marginBottom:'3%'
+}
 })

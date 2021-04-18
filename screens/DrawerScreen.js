@@ -1,21 +1,27 @@
-import React,{useState,useEffect, useContext} from 'react'
+import React,{useState,useEffect, useContext,useReducer,useRef} from 'react'
 import {Image,  StyleSheet, View,SafeAreaView, TouchableOpacity,Alert,StatusBar ,ActivityIndicator} from 'react-native'
 import { DrawerItem, DrawerContentScrollView, DrawerItemList} from '@react-navigation/drawer';
-import {useTheme,Avatar, Title,Caption,Paragraph,Drawer,Text,TouchableRipple,Switch} from 'react-native-paper';
+import {useTheme,Avatar, Title,Caption,Paragraph,Drawer,Text,TouchableRipple,Switch,Divider} from 'react-native-paper';
 import { MaterialCommunityIcons,FontAwesome5,Feather } from '@expo/vector-icons';
 import {useFonts} from 'expo-font';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon ,Button,Overlay} from 'react-native-elements'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {AuthContext} from '../components/Context';
+import {AuthContext,StateContext} from '../components/Context';
 import instance from '../src/api/Gng';
 import * as WebBrowser from 'expo-web-browser';
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
+import Constants from 'expo-constants';
+
+
 
 
 
 const DrawerScreen = ({...props}) => {
 
   const {signOut}=useContext(AuthContext)
+  const [ConName,ConImage,ConLastName,setConName,setConImage,setConLastName]=useContext(StateContext)
   const [userlist, setuserlist] = useState({})
   const [countryName, setcountryName] = useState('')
   const [stateName, setstateName] = useState('')
@@ -24,36 +30,109 @@ const DrawerScreen = ({...props}) => {
   const [lname, setlname] = useState('')
   const [phone, setphone] = useState('')
   
-  
+  const [TheKey, setTheKey] = useState(0)
 
   const [loader,setloader]=useState(false) //loader
   const [visible, setVisible] = useState(false);  //overly
   const[userdata,setuserdata]=useState({})
-  const [load,setload]=useState(true)
+  const [load,setload]=useState(true);
+  const [socialres, setsocialres] = useState({})
 
+    const [expoPushToken, setExpoPushToken] = useState('');
+    const [notification, setNotification] = useState(false);
+    const notificationListener = useRef();
+    const responseListener = useRef();
+  
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Constants.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log("----");
+      console.log(token);
+      console.log("----");
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  
+    return token;
+  }
+
+  
+
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(token =>{
+      console.log(token)
+      setExpoPushToken(token)});
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+      props.navigation.navigate('Notification')
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response)
+      props.navigation.navigate('Notification')
+      
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, [])
+ 
  
   useEffect(() => {
     (async()=>{
       try{
+        
         setloader(true)
         setVisible(true)
         const cid1 = await AsyncStorage.getItem('cid')
         const result1=await instance.get(`/customer/${cid1}`)
-        setfname(result1.data.fname)
-        setlname(result1.data.lname)
-        setphone(result1.data.contact)
-
-        const jsonValue1 = await AsyncStorage.getItem('userdata')
-          const parseData1=JSON.parse(jsonValue1)
-          console.log('user',parseData1)
-          setuserdata(parseData1)
+       
+          setConName(result1.data.fname);
+          setConImage(result1.data.image);
+          setConLastName(result1.data.lname);
+  setphone(result1.data.contact)
+  const socialresults=await instance.get('/contactus')
   
-          setloader(false)
-          setVisible(false)
-     }catch(err){
-           console.log(err) 
-      }
-    })()
+  setsocialres(socialresults.data[0])
+  
+  const jsonValue1 = await AsyncStorage.getItem('userdata')
+  const parseData1=JSON.parse(jsonValue1)
+  console.log('user',parseData1)
+  setuserdata(parseData1)
+  
+  setloader(false)
+  setVisible(false)
+  
+        }catch(err){
+          console.log(err) 
+          }
+     
+       
+})()
    
     
   }, [])
@@ -106,20 +185,16 @@ if (!loaded) {
 </Overlay>:null}
        
 <View style={styles.userInfoSection}>
- {userdata?<Avatar.Image
+ <Avatar.Image
    source={{
-     uri:userdata.image
+     uri:ConImage
    }}
    size={60}
    style={{marginLeft:'8%'}}
- />:<Avatar.Image
- source={require('../assets/camera.jpg')}
- size={60}
- style={{marginLeft:'8%'}}
-/>}
+ />
  
  <View style={styles.nameContainer}>
-    <Title style={styles.title}>{fname} {lname}</Title>
+    <Title style={styles.title}>{ConName} {ConLastName}</Title>
     <Title style={styles.subtitle}>{phone}</Title>
  </View>
 </View>
@@ -225,7 +300,7 @@ if (!loaded) {
   size={20}
   onPress={async() => {
     
-       await WebBrowser.openBrowserAsync('https://www.instagram.com/?hl=en');
+    await WebBrowser.openBrowserAsync(socialres.url_insta);
        
     
   }} />
@@ -236,7 +311,7 @@ if (!loaded) {
   type='font-awesome'
   color='#A8062A'
   size={20}
-  onPress={async() => await WebBrowser.openBrowserAsync('https://www.facebook.com')} />
+  onPress={async() => await WebBrowser.openBrowserAsync(socialres.url_facebook)} />
 
 <Icon
   raised
@@ -244,7 +319,7 @@ if (!loaded) {
   type='font-awesome'
   color='#A8062A'
   size={20}
-  onPress={async() => await WebBrowser.openBrowserAsync('https://myaccount.google.com/?utm_source=sign_in_no_continue')} />
+  onPress={async() => await WebBrowser.openBrowserAsync(socialres.url_google)} />
 
 <Icon
   raised
@@ -252,7 +327,7 @@ if (!loaded) {
   type='font-awesome'
   color='#A8062A'
   size={20}
-  onPress={async() => await WebBrowser.openBrowserAsync('https://twitter.com/?lang=en')} />
+  onPress={async() => await WebBrowser.openBrowserAsync(socialres.url_twitter)} />
   
 
 </View>
@@ -324,15 +399,15 @@ const styles = StyleSheet.create({
         
       },
       title: {
-       
+        width:'80%',
         fontFamily:'GothamBold',
         color:'white',
-        fontSize:18,
+        fontSize:17,
       },
       subtitle:{
         fontFamily:'Gotham',
         color:'white',
-        fontSize:16
+        fontSize:15
       },
       caption: {
         fontSize: 14,

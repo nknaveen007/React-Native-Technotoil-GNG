@@ -1,11 +1,14 @@
 import React,{useState,useEffect} from 'react'
-import { StyleSheet, Text, View ,ActivityIndicator,FlatList,Image} from 'react-native'
+import { StyleSheet, Text, View ,ActivityIndicator,FlatList,Image,TouchableOpacity} from 'react-native'
 import {Overlay } from 'react-native-elements'
 import axios from 'axios';
-import { AntDesign,FontAwesome5,MaterialCommunityIcons,Fontisto,Ionicons,MaterialIcons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import instance from '../src/api/Gng';
 import { Divider,Avatar} from 'react-native-paper';
 import {useFonts} from 'expo-font';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NotificationMain from './NotificationMain';
+import { Card } from 'native-base';
 
 
 const NotificationScreen = ({navigation}) => {
@@ -20,7 +23,8 @@ const NotificationScreen = ({navigation}) => {
       try{
       setloader(true)
       setVisible(true)
-      const NotificationResult=await instance.get('/NotificationMsgM')
+      const cid1 = await AsyncStorage.getItem('cid')
+      const NotificationResult=await instance.get(`/NotificationByCid/${cid1}`)
       console.log(NotificationResult.data)
       setNotificationList(NotificationResult.data)
         
@@ -49,13 +53,13 @@ const NotificationScreen = ({navigation}) => {
     return null;
   }
 
-
+let name=[]
   return (
     <View style={{marginBottom:'10%'}}>
        <View style={styles.headerContainer}>
           <View style={{flexDirection:'row'}}>
           <AntDesign name="arrowleft" size={26} color="#A8062A" style={{alignSelf:'center'}} onPress={()=>navigation.goBack()}/>
-                   <Text style={styles.headingText}>Notification</Text>
+                   <Text style={styles.headingText}>Notifications</Text>
           </View>
                    
                    <Image source={require('../assets/Gnglogo.png')} style={{width:50,height:30}}/>
@@ -65,67 +69,43 @@ const NotificationScreen = ({navigation}) => {
             {loader?<Overlay isVisible={visible}  style={{flex:1,justifyContent:'center',alignItems:'center'}}>
                <ActivityIndicator size="large" color="gray" />
       </Overlay>:null}
-      
+
+      {NotificationList!=='' && NotificationList.length!==0  ?
       <FlatList 
       data={NotificationList}
-      keyExtractor={(item,index)=>index}
+      keyExtractor={(item,index)=>index.toString()}
       renderItem={({item})=>{
         return(
-    <View style={{width:'95%',alignSelf:'center',marginBottom:'3%',paddingRight:'10%',backgroundColor:'#ededed',borderRadius:20}}>
-  <View style={{paddingVertical:'4%',width:'95%',alignSelf:'center',flexDirection:'row',paddingHorizontal:'2%'}}>
-      <View>
-         <Avatar.Image size={60} source={{uri:item.image}} />
+          <View style={{width:'95%',alignSelf:'center',marginVertical:'1.5%',paddingRight:'10%',backgroundColor:'#ededed',borderRadius:5,}}>
+          <TouchableOpacity onPress={()=>navigation.navigate('NotificationMain',{id:item.id})} style={{paddingVertical:'4%',width:'95%',alignSelf:'center',flexDirection:'row',paddingHorizontal:'2%'}}>
+          <View>
+             <Avatar.Image size={50} source={{uri:item.image}} />
+          </View>
+          
+           <View style={{marginLeft:'3%',paddingRight:'20%'}}>
+             
+                 <Text style={{fontFamily:'GothamBold',paddingVertical:'1%',color:'black',alignSelf:'flex-start',marginLeft:'4%',textTransform:'capitalize',fontSize:15,lineHeight:16}}>{item.title}</Text>
+                 <Text style={{fontFamily:'Gotham',color:'gray',alignSelf:'flex-start',marginLeft:'4%',lineHeight:16,fontSize:12}}>{item.date}</Text>
+            
+    
+            
+           </View>
+           
+      </TouchableOpacity>
+         
       </View>
-      
-       <View style={{marginLeft:'5%',paddingRight:'20%'}}>
-         <View style={{flexDirection:'row',marginBottom:'2%'}}>
-           <MaterialCommunityIcons name="subtitles-outline" size={20} color="black" />
-           <Text style={{fontFamily:'Gotham',paddingVertical:'1%',color:'gray',alignSelf:'center',marginLeft:'4%'}}>{item.title}</Text>
-         </View>
-
-         <View style={{flexDirection:'row',marginBottom:'2%'}}>
-         <MaterialIcons name="description" size={24} color="black" />
-         <Text style={{fontFamily:'Gotham',paddingVertical:'1%',color:'gray',alignSelf:'center',marginLeft:'4%'}}>{item.short_desc}</Text>
-         </View>
-
-         <View style={{flexDirection:'row',marginBottom:'2%'}}>
-         <Ionicons name="document-text-outline" size={24} color="black" style={{alignSelf:'center'}}/>
-         <Text style={{fontFamily:'Gotham',paddingVertical:'1%',color:'gray',lineHeight:20,alignSelf:'center',marginLeft:'4%'}}>{item.long_desc}</Text>
-         </View>
-
-         <View style={{flexDirection:'row',marginBottom:'2%'}}>
-         <MaterialCommunityIcons name="format-title" size={24} color="black" />
-         <Text style={{fontFamily:'Gotham',paddingVertical:'1%',color:'gray',alignSelf:'center',marginLeft:'4%'}}>{item.promo_title}</Text>
-         </View>
-
-         <View style={{flexDirection:'row'}}>
-         <Fontisto name="date" size={20} color="black" />
-         <Text style={{fontFamily:'Gotham',paddingVertical:'1%',color:'gray',alignSelf:'center',marginLeft:'4%'}}>{item.date}</Text>
-         </View>
-        
-         
-         
-         
-        
-  
-       </View>
-  </View>
-     
-  </View>
         )
       }}
-      />
+      />:  
+      <Text style={{marginVertical:'5%',fontFamily:'Gotham',color:'gray',marginLeft:'5%',alignSelf:'center',marginTop:'70%',fontSize:16}}>No Notification available !</Text>
+           
+        
+        }
     </View>
   )
 }
 
-/** 
- <Text style={{fontFamily:'GothamBold',color:'black'}}>Title : </Text>
- <Text style={{fontFamily:'GothamBold',color:'black'}}>Short_desc : </Text>
- <Text style={{fontFamily:'GothamBold',color:'black'}}>Long_desc : </Text>
- <Text style={{fontFamily:'GothamBold',color:'black'}}>Promo_title : </Text>
- <Text style={{fontFamily:'GothamBold',color:'black'}}>Date : </Text>
-  **/
+
 export default NotificationScreen
 
 const styles = StyleSheet.create({

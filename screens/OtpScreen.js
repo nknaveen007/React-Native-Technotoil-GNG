@@ -13,11 +13,14 @@ import axios from 'axios';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
+      
       shouldShowAlert: true,
       shouldPlaySound: false,
       shouldSetBadge: false,
     }),
   });
+
+  
 
 const OtpScreen = ({navigation,route}) => {
     const [expoPushToken, setExpoPushToken] = useState('');
@@ -35,7 +38,7 @@ const OtpScreen = ({navigation,route}) => {
     
         // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-          console.log(response);
+          console.log('')
         });
     
         return () => {
@@ -147,9 +150,7 @@ const number=route.params.number
    const [value4,setvalue4]=useState(null)
 
   
-  useEffect(() => {
-      
-  }, [])
+  
    
     
    
@@ -221,71 +222,90 @@ const number=route.params.number
            
         try{
             
-           const responce=await instance.get(`/Verifyotp/${number}/${otp}`)
-           console.log('otp responce',responce.data)
+           const responce=await instance.get(`/Verifyotp/${number}/${otp}`) //change after gateway
+           console.log('otp responce',responce)
 
-          let results=[responce.data]
+         let results=responce.data
+        
 
-        const cid1=results[0]['Customer Account Exist'].cid //customer id
-
-          console.log('cid ',cid1)
-         
-         
-          if(results[0]['OTP Verification'] && (results[0]['Customer Account Exist'] !=='No')){
-           
+        const cid1=results.cid
+        
+       console.log(results['Customer Account'],'customer account',   'cid',cid1)
+         const result1=await instance.get(`/customer/${cid1}`)
+         const value=result1.data.fname
+         console.log('fname',value)
+        if(results['Customer Account']==='0' ){
+           if (value!=='') {
             try {
-                setloader(true)
+                
+                
+              await AsyncStorage.setItem('number', number)
+              await AsyncStorage.setItem('cid', cid1)
+              await AsyncStorage.setItem('cidfortoken', cid1)
+              const result=await instance.get(`/customer/${cid1}`)
+              
+              console.log('userlist :', result.data)
+              const jsonValue1 = JSON.stringify({
+                  name:result.data.fname,
+                  email:result.data.email,
+                  image:result.data.image
+              })
+              await AsyncStorage.setItem('userdata',jsonValue1)
+
+              setloader(false)
+              console.log('save Scussfully')
+              setloader(false)
+         
+       signIn(number)
+            } catch (e) {
+                console.log(e)
+              setloader(false)
+            }
+              
+         
+           } else {
+             try {
+              await AsyncStorage.setItem('number', number)
+              await AsyncStorage.setItem('cid', cid1)
+              setloader(false)
+              navigation.navigate('Profile')
+             } catch (error) {
+               console.log(error)
+             }
+            
+           }
+           
+          }
+          else if(results['Customer Account']==='1'){
+              
+               try {
+                  
+                
                 
                 await AsyncStorage.setItem('number', number)
                 await AsyncStorage.setItem('cid', cid1)
-                const result=await instance.get(`/customer/${cid1}`)
-                
-                console.log('userlist :', result.data)
-                const jsonValue1 = JSON.stringify({
-                    name:result.data.fname,
-                    email:result.data.email,
-                    image:result.data.image
-                })
-                await AsyncStorage.setItem('userdata',jsonValue1)
-
-                setloader(false)
-                console.log('save Scussfully')
-              } catch (e) {
-                  console.log(e)
-                setloader(false)
-              }
-                
-           setloader(false)
-           
-         signIn(number)
-          }
-          else{
-              
-               if(results[0].Required){
-                   ToastAndroid.showWithGravityAndOffset(
-                       "Invalid OTP or Contact No",
-                       ToastAndroid.LONG,
-                       ToastAndroid.CENTER,               
-                       25,
-                       50
-                     );
-                     setloader(false)
- }                    
-               else{
-                setloader(false)
-                try {
-                    setloader(true)
-                    
-                    await AsyncStorage.setItem('number', number)
-                    setloader(false)
-
-                    console.log('save Scussfully')
-                  } catch (e) {
-                      console.log(e)
-                    setloader(false)
-                  }
+                  setloader(false)
+                  console.log('save Scussfully OTP')
+                } catch (e) {
+                    console.log(e)
+                  setloader(false)
+                }
                 navigation.navigate('Profile')
-               }
+              }
+              
+           
+               else{
+                
+                ToastAndroid.showWithGravityAndOffset(
+                  "Invalid OTP or Contact No",
+                  ToastAndroid.LONG,
+                  ToastAndroid.CENTER,               
+                  25,
+                  50
+                );
+                setloader(false)
+                
+               
               
                   
           }

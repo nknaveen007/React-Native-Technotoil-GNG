@@ -1,5 +1,5 @@
-import React,{useEffect,useState,useRef} from 'react'
-import {BackHandler, StyleSheet, Text, View,StatusBar,SafeAreaView, TouchableOpacity,ActivityIndicator,Alert,Platform,Image} from 'react-native'
+import React,{useEffect,useState,useRef,useContext} from 'react'
+import {BackHandler, StyleSheet, Text, View,StatusBar,SafeAreaView,Pressable, TouchableOpacity,ActivityIndicator,Alert,Platform,Image,Modal,Share} from 'react-native'
 import { EvilIcons,Ionicons ,AntDesign,MaterialCommunityIcons,MaterialIcons,FontAwesome5} from '@expo/vector-icons'; 
 import {useFonts} from 'expo-font';
 import {Overlay ,Button} from 'react-native-elements';
@@ -11,6 +11,9 @@ import Constants from 'expo-constants';
 
 
 const HomeScreen = ({navigation}) => {
+  
+    
+    
     
     const [localnumber,setlocalnumber]=useState('')
     const [localcid,setlocalcid]=useState('')
@@ -19,8 +22,29 @@ const HomeScreen = ({navigation}) => {
     const [notification, setNotification] = useState(false);
     const notificationListener = useRef();
     const responseListener = useRef();
+    const [modalVisible, setModalVisible] = useState(false);
 
+    const onShare = async () => {
 
+      try {
+        const result = await Share.share({
+          message: 'Download this app https://play.google.com/store/apps/details?id=com.e.FanBib',
+        });
+        
+        if (result.action === Share.sharedAction) {
+          if (result.activityType) {
+            // shared with activity type of result.activityType
+          } else {
+            // shared
+          }
+        } else if (result.action === Share.dismissedAction) {
+          // dismissed
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+/*
     async function registerForPushNotificationsAsync() {
         let token;
         if (Constants.isDevice) {
@@ -35,7 +59,7 @@ const HomeScreen = ({navigation}) => {
             return;
           }
           
-          token = (await Notifications.getDevicePushTokenAsync()).data;
+          token = (await Notifications.getExpoPushTokenAsync()).data;
           console.log("----");
           console.log(token);
           console.log("----");
@@ -55,15 +79,24 @@ const HomeScreen = ({navigation}) => {
         return token;
       }
 
+      
+
       useEffect(() => {
-        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+        registerForPushNotificationsAsync().then(token =>{
+          console.log(token)
+          setExpoPushToken(token)});
 
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
           setNotification(notification);
+          console.log(notification.date)
+          navigation.navigate('Notification')
+
+          
         });
     
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-          console.log(response);
+         
+          
         });
     
         return () => {
@@ -71,16 +104,22 @@ const HomeScreen = ({navigation}) => {
           Notifications.removeNotificationSubscription(responseListener);
         };
       }, [])
-   
+   */
  useEffect(() => {
 
         const unsubscribe = navigation.addListener('focus', async() => {
         console.log('data load')
             try{
+               
                 const num = await AsyncStorage.getItem('number')
                 const cid=await AsyncStorage.getItem('cid')
                 setlocalnumber(num)
                 setlocalcid(cid)
+                
+                
+                
+                              
+                             
                 
             }catch(err){
                 console.log(err)
@@ -119,7 +158,7 @@ const HomeScreen = ({navigation}) => {
             <View style={styles.headerContainer}>
                 <EvilIcons name="navicon" size={33} color="black" onPress={()=>navigation.openDrawer()}/>
                 <Text style={{color:'#A8062A',fontSize:22,fontFamily:'RobotoSlabBold'}}>Home</Text>
-                <Ionicons name="notifications" size={24} color="black" />
+                <Ionicons name="notifications" size={24} color="white" />
               </View>
 
           
@@ -151,17 +190,47 @@ const HomeScreen = ({navigation}) => {
 
             </View>
             </View>
-              
+           
 
           <View style={{marginTop:'3%',marginHorizontal:'3%',flexDirection:'row',height:'45%'}} >
-             <View style={{flexDirection:'column',flex:2,}}>
+             <View style={{flexDirection:'column',flex:2}}>
+             <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Share has been closed.");
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Share App!</Text>
+            <View style={{flexDirection:'row',justifyContent:'space-between',width:'80%',marginTop:'4%'}}>
+            <Pressable
+              style={[styles.buttonv, styles.buttonClose2]}
+              onPress={() => setModalVisible(!modalVisible)}
+            >
+              <Text style={styles.textStylecancel}>Cancel</Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.buttonv, styles.buttonClose]}
+              onPress={() => onShare()}
+            >
+              <Text style={styles.textStyleshare}>Share</Text>
+            </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
                <TouchableOpacity onPress={()=>navigation.navigate('Notification')} style={{height:'48%',borderRadius:3,backgroundColor:'#2294db',flexDirection:'column',alignItems:'center',justifyContent:'center',}}>
                <Ionicons name="md-notifications" size={45} color="white" style={{alignSelf:'center'}}/>
                  <Text style={{color:'white',fontFamily:'Gotham',fontSize:18,alignSelf:'center',marginTop:'5%'}}>Notification</Text>
                </TouchableOpacity>
 
-               <TouchableOpacity onPress={()=>navigation.navigate('Referal')} style={{height:'48%',borderRadius:3,backgroundColor:'#4abc3d',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'3%'}}>
+               <TouchableOpacity onPress={()=>setModalVisible(true)} style={{height:'48%',borderRadius:3,backgroundColor:'#4abc3d',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'3%'}}>
                <FontAwesome5 name="share" size={45} color="white" style={{alignSelf:'center'}} />
                  <Text style={{color:'white',fontFamily:'Gotham',fontSize:16,alignSelf:'center',marginTop:'5%'}}>Share The App</Text>
                </TouchableOpacity>
@@ -198,6 +267,11 @@ const styles = StyleSheet.create({
         
         
 
+    },centeredView: {
+      flex: 1,
+      justifyContent: "center",
+     
+      marginTop: 22
     },
     button:{
         borderWidth:1.3,
@@ -233,5 +307,50 @@ const styles = StyleSheet.create({
         fontSize:18,
         fontFamily:'RobotoSlab',
         color:'white'
+    },
+     modalView: {
+      margin: 20,
+      backgroundColor: "white",
+      borderRadius: 20,
+      padding: 35,
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5
+    },
+    buttonv: {
+      borderRadius: 10,
+      paddingVertical:10,
+      paddingHorizontal:20,
+      elevation: 2
+    },
+    buttonClose2: {
+      backgroundColor: "#2294db",
+    },
+    buttonClose: {
+      backgroundColor: "#4abc3d",
+    },
+    textStylecancel: {
+      color: "white",
+      
+      textAlign: "center",
+      fontFamily:'Gotham'
+    },
+    textStyleshare:{
+      color: "white",
+      
+      textAlign: "center",
+      fontFamily:'Gotham'
+    },
+    modalText: {
+      marginBottom: 15,
+      textAlign: "center",
+      fontFamily:'GothamBold',
+      fontSize:18
     }
 })

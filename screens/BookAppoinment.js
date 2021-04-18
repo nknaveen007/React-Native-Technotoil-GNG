@@ -5,7 +5,6 @@ import {StyleSheet, View, ScrollView, Text, TouchableOpacity, ActivityIndicator,
 import {Calendar,calendarTheme} from 'react-native-calendars';
 import { AntDesign,FontAwesome5 } from '@expo/vector-icons';
 import {useFonts} from 'expo-font';
-import SampleScreen from './SampleScreen';
 import instance from '../src/api/Gng';
 import { Checkbox,Card,TextInput,DefaultTheme,Divider} from 'react-native-paper';
 import {Overlay } from 'react-native-elements'
@@ -44,7 +43,7 @@ const BookAppoinment = ({navigation}) => {
     const [Timeslot, setTimeslot] = useState({})
     const [dayTimeslot, setdayTimeslot] = useState({})
     const [Day, setDay] = useState('')
-    const [markedDates, setmarkedDates] = useState({})
+    const [markedDates, setmarkedDates] = useState({'2021-04-7': {selected: true, marked: true, selectedColor: 'blue'}})
     const [showMarkedDatesExamples, setShowMarkedDatesExamples] = useState(false);
     const [empty, setempty] = useState(false)
 
@@ -56,58 +55,75 @@ const BookAppoinment = ({navigation}) => {
     const [selectedTimeSlot, setselectedTimeSlot] = useState([])
 
     useEffect(() => {
+
+      const unsubscribe = navigation.addListener('focus', async() => {
+        setDay('')
+        setselectedDate('')
+        setdayTimeslot({})
+        setmarkedDates({})
+        setempty(true)
+          setnoteText('');
         (async()=>{
             
-            try{
-            setloader(true)
-            setVisible(true)
-            const cid1 = await AsyncStorage.getItem('cid')
-            setlocalcid(cid1)
+          try{
+          setloader(true)
+          setVisible(true)
+          const cid1 = await AsyncStorage.getItem('cid')
+          setlocalcid(cid1)
 
-            const result1=await instance.get(`/customer/${cid1}`)
-            const result=await instance.get('/VideoTimeslot')
-            const BookedResult=await instance.get('/VideoBooking')
-            const BookedResultArray=BookedResult.data
-            console.log(BookedResult.data)
-              let array=[]
-              let array1=[]
-              let array2=[]
+          const result1=await instance.get(`/customer/${cid1}`)
+          const BookedResult=await instance.get('/VideoBooking')
+          const BookedResultArray=BookedResult.data
+         
+            let array=[]
+            let array1=[]
+            let array2=[]
 
-              BookedResultArray.map((item)=>{
-               array = item.start_datetime.split(' ');
+            BookedResultArray.map((item)=>{
+             array = item.start_datetime.split(' ');
 
-              array1.push(array[0])
-              array2.push(array[1].substr(0,5))
-              console.log('split',array)
+            array1.push(array[0])
+            array2.push(array[1].substr(0,5))
+           
+           
+          })
+
+          setBookedDate(array1)
+          setBookedTime(array2)
+
+          
+          
+          setname(result1.data.fname)
+          setPhone(result1.data.contact)
+          setCid(result1.data.cid)
+          
+
+          const jsonValue1 = await AsyncStorage.getItem('userdata')
+          const parseData1=JSON.parse(jsonValue1)
+          console.log('user',parseData1)
+          setuserdata(parseData1)
+
+          setloader(false)
+          }catch(err){
+          console.log(err)
+          setloader(false)
+          }
+          setloader(false)
+          
+          
+         
+      })();
+         
              
-            })
+      });
+      
+      return ()=>{
+          unsubscribe
+          
+      };
+    }, [navigation]);
 
-            setBookedDate(array1)
-            setBookedTime(array2)
-
-            
-            console.log(result.data)
-            setname(result1.data.fname)
-            setPhone(result1.data.contact)
-            setCid(result1.data.cid)
-            setTimeslot(result.data)
-
-            const jsonValue1 = await AsyncStorage.getItem('userdata')
-            const parseData1=JSON.parse(jsonValue1)
-            console.log('user',parseData1)
-            setuserdata(parseData1)
-
-            setloader(false)
-            }catch(err){
-            console.log(err)
-            setloader(false)
-            }
-            setloader(false)
-           
-           
-        })();
-        
-    }, [])
+    
   
 
   
@@ -124,11 +140,23 @@ const BookAppoinment = ({navigation}) => {
         return null;
       }
 
-    const getSelectedDayEvents =(date) => {
+    const getSelectedDayEvents =  async(date) => {
+      
+      try {
+        setloader(true)
+      setVisible(true)
+        const timeslotlist=await instance.get(`/VideoTimeslotByDate/${date}`)
+        console.log(timeslotlist.data)
+        setdayTimeslot(timeslotlist.data)
+        setTimeslot(timeslotlist.data)
+        setloader(false)
+
+           
       setselect(true)
       setselectedTimeSlot([])
         let markedDates = {};
         markedDates[date] = { selected: true, color: '#00B0BF', textColor: '#FFFFFF' };
+        
         let serviceDate = moment(date);
         serviceDate = serviceDate.format("YYYY-MM-DD");
         console.log('serviceDate',serviceDate,'Booked Date',BookedDate)
@@ -144,46 +172,38 @@ weekday[4] = "thursday";
 weekday[5] = "friday";
 weekday[6] = "saturday";
 
-console.log(markedDates)
+
 var n = weekday[day];
-console.log('data',Timeslot[n])
 
 
 
-if(BookedDate.includes(serviceDate)){
-  
- // let str = dayTimeslot[item]
- // let array = str.split(' - ');
- // array[0]
-  if(BookedTime.includes(Timeslot[n])){
-      console.log('true time')
-      console.log('BookedTime',BookedTime)
-      console.log('Timeslots',Timeslot[n])
-  }
-  else{
-     console.log('false time')
-     console.log('BookedTime',BookedTime)
-      console.log('Timeslots',Timeslot[n])
-  }
 
-}else{
-console.log('false date')
-}
 
 setChecked(false)
 
         setDay(n)
         setselectedDate(serviceDate)
         setmarkedDates(markedDates)
-        setdayTimeslot(Timeslot[n])
-        if(Timeslot[n].length===0){
+        console.log(timeslotlist.data.return,'........')
+        if(timeslotlist.data.return==='holiday'){
+          console.log(timeslotlist.data.result)
           setempty(true)
         }
         else{
           setempty(false)
         }
         
+          
         
+
+      } catch (error) {
+        
+      }
+      
+      
+      
+   
+      
        
     };
 
@@ -230,16 +250,16 @@ setChecked(false)
                           
                         setloader(false)
                         ToastAndroid.showWithGravityAndOffset(
-                          "Please Enter A Valid Email",
+                          "Booking Finished",
                           ToastAndroid.LONG,
-                          ToastAndroid.BOTTOM,
+                          ToastAndroid.TOP,
                           25,
                           50
                         );
                         
                           Alert.alert(
                             'Appointment Booked','Thank you for booking',[
-                                {text:'Ok',onPress:()=>navigation.goBack()}
+                                {text:'Ok',onPress:()=>navigation.navigate('History')}
                             ]
                         )
                         
@@ -309,7 +329,7 @@ showsVerticalScrollIndicator={false}
     <Card.Content>
         
 <Calendar
-  style={{ height: 300, width: "90%",alignSelf:'center'}}
+  style={{ height: 350, width: "90%",alignSelf:'center'}}
   theme={{
     backgroundColor: "#ffffff",
     calendarBackground: "#ffffff",
@@ -327,6 +347,7 @@ showsVerticalScrollIndicator={false}
     selectedDayTextColor: "white",
     textDayHeaderFontSize: 14
   }}
+  current={new Date()}
   firstDay={1}
   enableSwipeMonths={true}
   hideExtraDays={true}
