@@ -97,7 +97,7 @@ let name=[]
         )
       }}
       />:  
-      <Text style={{marginVertical:'5%',fontFamily:'Gotham',color:'gray',marginLeft:'5%',alignSelf:'center',marginTop:'70%',fontSize:16}}>No Notification available !</Text>
+      <Text style={{marginVertical:'5%',fontFamily:'Gotham',color:'gray',marginLeft:'5%',alignSelf:'center',marginTop:'70%',fontSize:16}}>Sorry, at the moment, we do not have any news</Text>
            
         
         }

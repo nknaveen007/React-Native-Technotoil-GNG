@@ -58,9 +58,7 @@ const DrawerScreen = ({...props}) => {
       }
       
       token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log("----");
-      console.log(token);
-      console.log("----");
+      
     } else {
       alert('Must use physical device for Push Notifications');
     }
@@ -81,7 +79,7 @@ const DrawerScreen = ({...props}) => {
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token =>{
-      console.log(token)
+     
       setExpoPushToken(token)});
 
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
@@ -90,7 +88,7 @@ const DrawerScreen = ({...props}) => {
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response)
+      
       props.navigation.navigate('Notification')
       
     });
@@ -121,14 +119,14 @@ const DrawerScreen = ({...props}) => {
   
   const jsonValue1 = await AsyncStorage.getItem('userdata')
   const parseData1=JSON.parse(jsonValue1)
-  console.log('user',parseData1)
+  
   setuserdata(parseData1)
   
   setloader(false)
   setVisible(false)
   
         }catch(err){
-          console.log(err) 
+          
           }
      
        
@@ -288,7 +286,12 @@ if (!loaded) {
    labelStyle={{color:'white',fontFamily:'Gotham'}}
    onPress={() => {props.navigation.navigate('Policy')}}
  />
+
+
 </Drawer.Section>
+
+
+
 </View>
 
 <View style={styles.socialIconContainer}>

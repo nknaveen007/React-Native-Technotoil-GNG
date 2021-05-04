@@ -1,10 +1,8 @@
-import React,{useEffect,useState,useMemo, useReducer} from 'react';
-import { View, Text ,StyleSheet} from 'react-native';
+import React,{useEffect,useState,useMemo} from 'react';
+import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator, HeaderTitle } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import { AntDesign } from '@expo/vector-icons';
 import LoginScreen from './screens/LoginScreen';
 import OtpScreen from './screens/OtpScreen';
 import ProfileScreen from './screens/ProfileScreen';
@@ -21,7 +19,6 @@ import TermsConditions from './screens/TermsConditions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
 import {AuthContext,Context} from './components/Context'
-import instance from './src/api/Gng';
 import NewsWebView from './screens/NewsWebView';
 import PickerView from './screens/PickerView';
 import PickerView2 from './screens/PickerView2';
@@ -29,6 +26,8 @@ import BookAppoinment from './screens/BookAppoinment';
 import BookingHistory from './screens/BookingHistory';
 import { Provider as PaperProvider } from 'react-native-paper';
 import NotificationMain from './screens/NotificationMain';
+
+
 
 
 
@@ -74,7 +73,7 @@ const MainStackScreens=()=>{
          <HomeStack.Screen name="Booking" component={BookAppoinment} options={{headerShown:false}}/>
          <HomeStack.Screen name="History" component={BookingHistory} options={{headerShown:false}}/>
          <HomeStack.Screen name="NotificationMain" component={NotificationMain} options={{headerShown:false}}/>
-        
+         
       </HomeStack.Navigator>
     )
   }
@@ -115,6 +114,7 @@ const DrawerStackScreen=()=>{
       <DrwaweStack.Screen name="AboutUs"   component={AboutusScreen} />
       <DrwaweStack.Screen name="ContactUs" component={Contactus} />
       <DrwaweStack.Screen name="Policy"   component={PrivicyPolicy} />
+      
      
     </DrwaweStack.Navigator>
   )

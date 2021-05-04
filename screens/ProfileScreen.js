@@ -270,7 +270,7 @@ const ProfileScreen = ({navigation,route}) => {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect:[1,1],
-      quality: 1,
+      quality: 0.5,
       
     });
 
@@ -305,7 +305,7 @@ const ProfileScreen = ({navigation,route}) => {
       if(name===''||lastname===''||address===''||zipcode===''||email===''){
 
         ToastAndroid.showWithGravityAndOffset(
-            "All Fields Are Required",
+            "Required fields (*) cannot be empty",
             ToastAndroid.SHORT,
             ToastAndroid.BOTTOM,
             25,
@@ -316,17 +316,10 @@ const ProfileScreen = ({navigation,route}) => {
          const valid=validator.isEmail(email)
            if(valid===true){
             if(checked){
-
+             
               try{
-                if(imagename===""){
-                  setimagename(image)
-                }
-                if(image==='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIhKgbgB5i3hrMiDIftvEXUTW6-T8TYcaz3g&usqp=CAU'){
-                  setImage('https://www.freepnglogos.com/uploads/camera-logo-png/clipart-camera-icon-logo-circle-7.png')
-                  setimagename(imgstr())
-                }else{
-                  null
-                }
+                
+               
   
                 const formData = new FormData();
                 // formData.append('data', JSON.stringify(data));
@@ -378,7 +371,7 @@ const ProfileScreen = ({navigation,route}) => {
                               console.log('signin',localnumber,localcid)
                               setloader(false)
                               ToastAndroid.showWithGravityAndOffset(
-                               "Profile Uploaded",
+                               "Profile updated successfully",
                                ToastAndroid.LONG,
                                ToastAndroid.CENTER,
                                25,
@@ -395,12 +388,12 @@ const ProfileScreen = ({navigation,route}) => {
                            
                              
             }else{
-             alert('Please Select The Terms & Conditions')
+             alert('Please agree to Terms & Conditions')
             }
            }
            else{
             ToastAndroid.showWithGravityAndOffset(
-              "Please Enter A Valid Email",
+              "invalid e-mail address",
               ToastAndroid.LONG,
               ToastAndroid.CENTER,
               25,
@@ -408,6 +401,7 @@ const ProfileScreen = ({navigation,route}) => {
             );
 
            }
+           
            
  
           

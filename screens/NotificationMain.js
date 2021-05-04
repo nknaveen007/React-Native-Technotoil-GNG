@@ -68,21 +68,28 @@ const NotificationMain = ({navigation,route}) => {
                <ActivityIndicator size="large" color="gray" />
       </Overlay>:null}
 
-<View style={{width:'97%',alignSelf:'center',marginTop:'2%',backgroundColor:'white'}}>
+<View style={{width:'100%',alignSelf:'center',marginTop:'2%',backgroundColor:'white',paddingHorizontal:'3%'}}>
       <Card>
       <Card.Cover source={{uri:data.image}} /> 
       </Card>
-     <Text style={{fontFamily:'GothamBold',fontSize:16,marginTop:'3%',marginBottom:'3%'}}>{data.title}</Text>
+
+      <View style={{flexDirection:'row',justifyContent:'space-between',flexWrap:'wrap'}}>
+         <Text style={{fontFamily:'GothamBold',fontSize:16,marginTop:'3%',marginBottom:'1.5%',lineHeight:20,paddingHorizontal:'2%'}}>{data.title} Title of the content is too Long</Text>
+         <Text style={{fontFamily:'Gotham',fontSize:14,marginTop:'1.5%',marginBottom:'3%',color:'gray',paddingLeft:'2%'}}>{data.date}</Text>
+      </View>
+   
      
 
     </View>
 {loader?null:
     <WebView 
+    style={{marginHorizontal:'1.5%'}}
         originWhitelist={['*']}
         source={{ html: data.long_desc }}
         injectedJavaScript={`const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta); `}
         scalesPageToFit
         />}
+        
 
            
         </>

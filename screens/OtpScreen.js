@@ -207,7 +207,7 @@ const number=route.params.number
           if(value1==null||value2==null||value3==null||value4==null){
             
             ToastAndroid.showWithGravityAndOffset(
-                "Please Fill the OTP",
+                "OTP cannot be empty",
                 ToastAndroid.LONG,
                 ToastAndroid.CENTER,
                 25,
@@ -297,7 +297,7 @@ const number=route.params.number
                else{
                 
                 ToastAndroid.showWithGravityAndOffset(
-                  "Invalid OTP or Contact No",
+                  "invalid OTP",
                   ToastAndroid.LONG,
                   ToastAndroid.CENTER,               
                   25,
@@ -316,7 +316,7 @@ const number=route.params.number
             setloader(false)
             console.log(err)
             ToastAndroid.showWithGravityAndOffset(
-                "Invalid OTP",
+                "invalid OTP",
                 ToastAndroid.LONG,
                 ToastAndroid.CENTER,
                 25,

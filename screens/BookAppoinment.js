@@ -250,7 +250,7 @@ setChecked(false)
                           
                         setloader(false)
                         ToastAndroid.showWithGravityAndOffset(
-                          "Booking Finished",
+                          "Successfully booking is scheduled",
                           ToastAndroid.LONG,
                           ToastAndroid.TOP,
                           25,
@@ -258,7 +258,7 @@ setChecked(false)
                         );
                         
                           Alert.alert(
-                            'Appointment Booked','Thank you for booking',[
+                            'Thanks for your booking', 'our sales representative will get in touch 30 minutes before the start of the video sales call',[
                                 {text:'Ok',onPress:()=>navigation.navigate('History')}
                             ]
                         )
@@ -272,7 +272,7 @@ setChecked(false)
                       
         }else{
           Alert.alert(
-            'Alert','Please choose the available Time slot'
+            'Alert','Must select available time-slot'
         )
         }
        
@@ -372,6 +372,7 @@ showsVerticalScrollIndicator={false}
        {empty?<Text style={{marginVertical:'5%',fontFamily:'Gotham',color:'gray',marginLeft:'5%'}}>No time slot available !</Text>:
       
        <FlatList 
+       nestedScrollEnabled
 scrollToOverflowEnabled={true}
 nestedScrollEnabled
 style={{marginVertical:'5%',height:150}}

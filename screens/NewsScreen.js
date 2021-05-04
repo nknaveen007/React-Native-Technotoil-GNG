@@ -21,7 +21,7 @@ const NewsScreen=({navigation})=> {
             setloader(true)
             setVisible(true)
             const responce=await instance.get('/news') 
-            console.log(responce.data)
+           
             setnewsList(responce.data)
             setloader(false)
            
@@ -68,19 +68,21 @@ const NewsScreen=({navigation})=> {
      <FlatList
       keyExtractor={news=>news.id}
       data={newsList}
+      contentContainerStyle={{backgroundColor:'white'}}
       renderItem={({item})=>{
 return(
  
-        <Container style={{height:'50%'}}>
+        <Container style={{height:'10%',marginBottom:'5%',backgroundColor:'white'}}>
            <Content>
         
-          <Card style={{flex: 0}}  >
+          <Card style={{flex: 1}}  >
             <CardItem  >
               <Left>
                 <Thumbnail source={{uri: `${item.image}`}} />
                 <Body>
                   <Text style={{fontFamily:'GothamBold',fontSize:20,marginBottom:'1%',color:'#A8062A'}}>{item.author}</Text>
-                  <Text style={{fontFamily:'Gotham',lineHeight:17}} note>{item.headline}</Text>
+                  <Text style={{fontFamily:'Gotham',lineHeight:17}} note>{item.headline}.</Text>
+                 
                 </Body>
               </Left>
               
@@ -93,20 +95,25 @@ return(
               <Body>
                 <Image source={{uri: `${item.image}`}} style={{height: 200, width: '100%', flex: 1}}/>
                 
-                <Text style={{fontFamily:'Gotham'}}>{item.newsorigin}
-                </Text>
+                
                 {loader?<Overlay isVisible={visible}  style={{flex:1,justifyContent:'center',alignItems:'center'}}>
                <ActivityIndicator size="large" color="gray" />
       </Overlay>:null}
               </Body>
+              
             </CardItem>
-            <CardItem>
+            <Text style={{fontFamily:'Gotham',left:'5%'}}>{item.newsorigin}</Text>
+            <CardItem style={{height:50,marginBottom:'3%'}}>
+         
               <Left>
                 <Button transparent textStyle={{color: '#87838B'}}>
                   <Icon name="newspaper-o" type='FontAwesome' style={{color:'#A8062A'}} />
-                  <Text style={{fontFamily:'Gotham',color:'#A8062A'}}>{item.category}</Text>
+                  <Text style={{color:'#A8062A',fontFamily:'Gotham'}}>{item.category}</Text>
                 </Button>
               </Left>
+              <Right>
+              <Text style={{fontFamily:'GothamBold',lineHeight:17}} note>{item.entry_date}</Text>
+              </Right>
             </CardItem>
           </Card>
           </Content> 

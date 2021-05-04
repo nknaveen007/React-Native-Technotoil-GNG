@@ -186,7 +186,7 @@ useEffect(() => {
       const num = await AsyncStorage.getItem('number')
       const cid1 = await AsyncStorage.getItem('cid')
      
-      console.log('parse',num ,cid1)
+      
       setlocalnumber(num)
       setlocalcid(cid1)
       
@@ -203,8 +203,7 @@ useEffect(() => {
    setcountrydata({countryName:country.data.countryName})
    setstatedata({StateName:state.data[0].StateName})
 
-   console.log('customer',result1.data)
-   console.log('image y:',result1.data.image)
+ 
 
    setUserList(result1.data)
    setname(result1.data.fname)
@@ -223,7 +222,7 @@ useEffect(() => {
                               setConImage(result1.data.image);
                               setConLastName(result1.data.lname);
               
-              console.log('userlist :', result1.data)
+              
               const jsonValue1 = JSON.stringify({
                   name:result1.data.fname,
                   email:result1.data.email,
@@ -237,7 +236,7 @@ useEffect(() => {
               setloader(false)
       setVisible(false)
             }catch(err){
-  console.log(err)
+
 
     }})();
 
@@ -261,7 +260,7 @@ useEffect(() => {
  setloader(false)
  setVisible(false)
         }catch(err){
-          console.log(err)
+          
         }
        
 
@@ -283,7 +282,7 @@ useEffect(() => {
                   const num = await AsyncStorage.getItem('number')
                   const cid1 = await AsyncStorage.getItem('cid')
                  
-                  console.log('parse',num ,cid1)
+                 
                   setlocalnumber(num)
                   setlocalcid(cid1)
                   
@@ -300,8 +299,7 @@ useEffect(() => {
                setcountrydata({countryName:country.data.countryName})
                setstatedata({StateName:state.data[0].StateName})
             
-               console.log('customer',result1.data)
-               console.log('image y:',result1.data.image)
+               
             
                setUserList(result1.data)
                setname(result1.data.fname)
@@ -316,7 +314,7 @@ useEffect(() => {
                setdateofbirth1(result1.data.dob)
                //setdob(result1.data.dob)
                           
-                          console.log('userlist :', result1.data)
+                          
                           const jsonValue1 = JSON.stringify({
                               name:result1.data.fname,
                               email:result1.data.email,
@@ -330,7 +328,7 @@ useEffect(() => {
                           setloader(false)
                   setVisible(false)
                         }catch(err){
-              console.log(err)
+              
             
                 }})();
             
@@ -365,7 +363,7 @@ useEffect(() => {
              setloader(false)
              setVisible(false)
                     }catch(err){
-                      console.log(err)
+                      
                     }
                    
             
@@ -442,12 +440,12 @@ const searchFilter2=(text)=>{
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0.5,
       
     });
 
     if (!result.cancelled) {
-      console.log('gallery image',result)
+      
 
      let name= imgstr()
      
@@ -471,7 +469,7 @@ const searchFilter2=(text)=>{
     
 
     if (!result.cancelled) {
-      console.log('camera image',result)
+      
       let name= imgstr()
      setimagename(name)
      setImage(result.uri);
@@ -501,7 +499,7 @@ const searchFilter2=(text)=>{
 
       if(name===''||lastname===''||address===''||zipcode===''||email===''){
         ToastAndroid.showWithGravityAndOffset(
-            "All Fields Are Required",
+            "Required fields (*) cannot be empty",
             ToastAndroid.SHORT,
             ToastAndroid.BOTTOM,
             25,
@@ -556,11 +554,11 @@ const searchFilter2=(text)=>{
                                    }
                                })
                                .then(function (response) {
-                                       console.log(response)
+                                     
                                          
                               })
                               .catch(function (error) {
-                                       console.log('Myprofile error',error);
+                                       
                               })
                               setConName(name);
                               setConImage(image);
@@ -577,14 +575,14 @@ const searchFilter2=(text)=>{
                     
                           }catch(err){
                             
-                            console.log(err)
+                            
                             alert('Something Goes Wrong')
                           } 
                         
                           setloader(false)
                            setVisible(false)
                            ToastAndroid.showWithGravityAndOffset(
-                            "Profile Updated Seccessfully",
+                            "Profile updated successfully",
                             ToastAndroid.LONG,
                             ToastAndroid.CENTER,
                             25,
@@ -594,7 +592,7 @@ const searchFilter2=(text)=>{
             }
            else{
             ToastAndroid.showWithGravityAndOffset(
-              "Please Enter A Valid Email",
+              "invalid e-mail address",
               ToastAndroid.LONG,
               ToastAndroid.CENTER,
               25,

@@ -2,33 +2,28 @@ import React,{useEffect,useState,useRef,useContext} from 'react'
 import {BackHandler, StyleSheet, Text, View,StatusBar,SafeAreaView,Pressable, TouchableOpacity,ActivityIndicator,Alert,Platform,Image,Modal,Share} from 'react-native'
 import { EvilIcons,Ionicons ,AntDesign,MaterialCommunityIcons,MaterialIcons,FontAwesome5} from '@expo/vector-icons'; 
 import {useFonts} from 'expo-font';
-import {Overlay ,Button} from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
-import * as Permissions from 'expo-permissions';
-import Constants from 'expo-constants';
+import instance from '../src/api/Gng';
+
+
 
 
 
 const HomeScreen = ({navigation}) => {
-  
-    
-    
-    
+     
     const [localnumber,setlocalnumber]=useState('')
     const [localcid,setlocalcid]=useState('')
-    const [state, setstate] = useState('')
-    const [expoPushToken, setExpoPushToken] = useState('');
-    const [notification, setNotification] = useState(false);
-    const notificationListener = useRef();
-    const responseListener = useRef();
+   
     const [modalVisible, setModalVisible] = useState(false);
+    const [url, seturl] = useState('')
+
+   
 
     const onShare = async () => {
 
       try {
         const result = await Share.share({
-          message: 'Download this app https://play.google.com/store/apps/details?id=com.e.FanBib',
+          message: url
         });
         
         if (result.action === Share.sharedAction) {
@@ -44,71 +39,28 @@ const HomeScreen = ({navigation}) => {
         alert(error.message);
       }
     };
-/*
-    async function registerForPushNotificationsAsync() {
-        let token;
-        if (Constants.isDevice) {
-          const { status: existingStatus } = await Notifications.getPermissionsAsync();
-          let finalStatus = existingStatus;
-          if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-          }
-          if (finalStatus !== 'granted') {
-            alert('Failed to get push token for push notification!');
-            return;
-          }
-          
-          token = (await Notifications.getExpoPushTokenAsync()).data;
-          console.log("----");
-          console.log(token);
-          console.log("----");
-        } else {
-          alert('Must use physical device for Push Notifications');
-        }
-      
-        if (Platform.OS === 'android') {
-          Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
-        }
-      
-        return token;
-      }
 
-      
+    useEffect(() => {
 
-      useEffect(() => {
-        registerForPushNotificationsAsync().then(token =>{
-          console.log(token)
-          setExpoPushToken(token)});
-
-        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-          setNotification(notification);
-          console.log(notification.date)
-          navigation.navigate('Notification')
-
-          
-        });
+      (async()=>{
+         try {
+          const socialresults=await instance.get('/ShareMessage')
+          seturl(socialresults.data.html_content)
+         } catch (error) {
+           console.log(error)
+         }
+      })();
+        
+            
     
-        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
          
-          
-        });
-    
-        return () => {
-          Notifications.removeNotificationSubscription(notificationListener);
-          Notifications.removeNotificationSubscription(responseListener);
-        };
-      }, [])
-   */
+    },[])
+
  useEffect(() => {
+  
 
         const unsubscribe = navigation.addListener('focus', async() => {
-        console.log('data load')
+       
             try{
                
                 const num = await AsyncStorage.getItem('number')
@@ -122,7 +74,7 @@ const HomeScreen = ({navigation}) => {
                              
                 
             }catch(err){
-                console.log(err)
+                
             }
            
                
@@ -227,7 +179,7 @@ const HomeScreen = ({navigation}) => {
 
                <TouchableOpacity onPress={()=>navigation.navigate('Notification')} style={{height:'48%',borderRadius:3,backgroundColor:'#2294db',flexDirection:'column',alignItems:'center',justifyContent:'center',}}>
                <Ionicons name="md-notifications" size={45} color="white" style={{alignSelf:'center'}}/>
-                 <Text style={{color:'white',fontFamily:'Gotham',fontSize:18,alignSelf:'center',marginTop:'5%'}}>Notification</Text>
+                 <Text style={{color:'white',fontFamily:'Gotham',fontSize:18,alignSelf:'center',marginTop:'5%'}}>Notifications</Text>
                </TouchableOpacity>
 
                <TouchableOpacity onPress={()=>setModalVisible(true)} style={{height:'48%',borderRadius:3,backgroundColor:'#4abc3d',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'3%'}}>

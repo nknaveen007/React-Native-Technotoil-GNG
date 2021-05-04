@@ -58,7 +58,7 @@ const LoginScreen = ({navigation}) => {
                     
                 }catch(err){
                     setloader(false)
-                   return  alert('Something Goes Wrong')
+                   return  alert('Network error. Please try again once you are connected')
 
                 }
 
@@ -72,7 +72,7 @@ const LoginScreen = ({navigation}) => {
         }
         else{
             ToastAndroid.showWithGravityAndOffset(
-                "Please Enter The Valid Number",
+                "Please enter the valid Mobile Number",
                 ToastAndroid.SHORT,
                 ToastAndroid.BOTTOM,
                 25,
@@ -83,7 +83,7 @@ const LoginScreen = ({navigation}) => {
     }
     else{
         ToastAndroid.showWithGravityAndOffset(
-            "Please Enter Your Mobile Number",
+            "Mobile Number cannot be empty",
             ToastAndroid.SHORT,
             ToastAndroid.BOTTOM,
             25,
