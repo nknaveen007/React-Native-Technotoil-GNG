@@ -102,7 +102,7 @@ return(
               </Body>
               
             </CardItem>
-            <Text style={{fontFamily:'Gotham',left:'5%'}}>{item.newsorigin}</Text>
+            <Text onPress={() =>navigation.navigate('NewsView',{content:item.newshtmlcontent})} style={{fontFamily:'Gotham',left:'5%'}}>{item.newsorigin}</Text>
             <CardItem style={{height:50,marginBottom:'3%'}}>
          
               <Left>
@@ -112,7 +112,7 @@ return(
                 </Button>
               </Left>
               <Right>
-              <Text style={{fontFamily:'GothamBold',lineHeight:17}} note>{item.entry_date}</Text>
+              <Text style={{fontFamily:'GothamBold',lineHeight:17}}>{item.entry_date}</Text>
               </Right>
             </CardItem>
           </Card>

@@ -73,9 +73,9 @@ const NotificationMain = ({navigation,route}) => {
       <Card.Cover source={{uri:data.image}} /> 
       </Card>
 
-      <View style={{flexDirection:'row',justifyContent:'space-between',flexWrap:'wrap'}}>
-         <Text style={{fontFamily:'GothamBold',fontSize:16,marginTop:'3%',marginBottom:'1.5%',lineHeight:20,paddingHorizontal:'2%'}}>{data.title} Title of the content is too Long</Text>
-         <Text style={{fontFamily:'Gotham',fontSize:14,marginTop:'1.5%',marginBottom:'3%',color:'gray',paddingLeft:'2%'}}>{data.date}</Text>
+      <View style={{flexDirection:'row',justifyContent:'space-between',flexWrap:'wrap',marginBottom:'3%',marginTop:'3%'}}>
+         <Text style={{fontFamily:'GothamBold',fontSize:16,lineHeight:20,paddingHorizontal:'2%',marginBottom:'3%'}}>{data.title}</Text>
+         <Text style={{fontFamily:'Gotham',fontSize:14,color:'gray',paddingLeft:'2%',lineHeight:20}}>{data.date}</Text>
       </View>
    
      

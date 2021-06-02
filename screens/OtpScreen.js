@@ -184,7 +184,7 @@ const number=route.params.number
                     setloader(true)
                     setVisible(true)
                   await  axios({
-                      url    : `https://develop-c.cheshtainfotech.com/CEA/api/token`,
+                      url    : `https://app.glamngears.com/admin/api/token`,
                       method : 'POST',
                       data   : formData,
                       headers: {

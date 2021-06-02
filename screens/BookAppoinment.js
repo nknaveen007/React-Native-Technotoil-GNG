@@ -72,25 +72,7 @@ const BookAppoinment = ({navigation}) => {
           setlocalcid(cid1)
 
           const result1=await instance.get(`/customer/${cid1}`)
-          const BookedResult=await instance.get('/VideoBooking')
-          const BookedResultArray=BookedResult.data
          
-            let array=[]
-            let array1=[]
-            let array2=[]
-
-            BookedResultArray.map((item)=>{
-             array = item.start_datetime.split(' ');
-
-            array1.push(array[0])
-            array2.push(array[1].substr(0,5))
-           
-           
-          })
-
-          setBookedDate(array1)
-          setBookedTime(array2)
-
           
           
           setname(result1.data.fname)
@@ -231,7 +213,7 @@ setChecked(false)
                     setloader(true)
                     setVisible(true)
                   await  axios({
-                      url    : `https://develop-c.cheshtainfotech.com/CEA/api/VideoBooking`,
+                      url    : 'https://app.glamngears.com/admin/api/VideoBooking',
                       method : 'POST',
                       data   : formData,
                       headers: {

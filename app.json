@@ -1,6 +1,5 @@
 {
   "expo": {
-    
     "name": "GNG",
     "slug": "gng",
     "version": "1.0.0",
@@ -8,9 +7,8 @@
     "icon": "./assets/Icon.png",
     "splash": {
       "image": "./assets/Splash1.png",
-      "resizeMode":"cover"
-      
-     },
+      "resizeMode": "cover"
+    },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -18,7 +16,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gng.myapp"
     },
     "android": {
       "googleServicesFile": "./google-services.json",
@@ -29,7 +28,6 @@
       },
       "package": "com.gng.myapp",
       "versionCode": 1
-      
     },
     "web": {
       "favicon": "./assets/favicon.png"

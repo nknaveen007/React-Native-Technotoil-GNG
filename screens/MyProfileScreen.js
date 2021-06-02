@@ -544,7 +544,7 @@ const searchFilter2=(text)=>{
                
                        
                       await  axios({
-                          url    : `https://develop-c.cheshtainfotech.com/CEA/api/customer/${localcid}`,
+                          url    : `https://app.glamngears.com/admin/api/customer/${localcid}`,
                           method : 'POST',
                           data   : formData,
                           headers: {

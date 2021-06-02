@@ -7,7 +7,6 @@ import LoginScreen from './screens/LoginScreen';
 import OtpScreen from './screens/OtpScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import HomeScreen from './screens/HomeScreen';
-import ReferalScreen from './screens/ReferalScreen';
 import DrawerScreen from './screens/DrawerScreen'
 import NotificationScreen from './screens/NotificationScreen';
 import MyProfileScreeen from './screens/MyProfileScreen';
@@ -69,7 +68,6 @@ const MainStackScreens=()=>{
         <HomeStack.Screen name="Home" component={HomeScreen} options={{headerShown:false}}/>
         <HomeStack.Screen name="HomeProfile" component={MyProfileScreeen} options={{headerShown:false}}/>
         <HomeStack.Screen name="Notification" component={NotificationScreen} options={{headerShown:false}}/>
-        <HomeStack.Screen name="Referal" component={ReferalScreen} options={{headerShown:false}}/>
          <HomeStack.Screen name="Booking" component={BookAppoinment} options={{headerShown:false}}/>
          <HomeStack.Screen name="History" component={BookingHistory} options={{headerShown:false}}/>
          <HomeStack.Screen name="NotificationMain" component={NotificationMain} options={{headerShown:false}}/>
