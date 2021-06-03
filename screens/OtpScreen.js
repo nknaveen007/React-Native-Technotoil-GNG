@@ -10,6 +10,8 @@ import { Divider } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../components/Context'
 import axios from 'axios';
+import {useToast} from "react-native-fast-toast";
+
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -27,7 +29,7 @@ const OtpScreen = ({navigation,route}) => {
     const [notification, setNotification] = useState(false);
     const notificationListener = useRef();
     const responseListener = useRef();
-
+    const toast =useToast()
     useEffect(() => {
         registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
     
@@ -79,6 +81,27 @@ const OtpScreen = ({navigation,route}) => {
       }
 
     const {signIn}=useContext(AuthContext)
+
+    const iostoast=(value)=>{
+      if(Platform.OS=='android'){
+        ToastAndroid.showWithGravityAndOffset(
+            value,
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM,
+            25,
+            50
+          );
+      }else{
+        toast.show(value, {
+            duration: 3000,
+            style: { paddingHorizontal:20,borderRadius:20,backgroundColor:'#f2f0f0',bottom:'-13%',paddingVertical:15},
+            textStyle: { fontSize: 14,color:'black'},
+            
+          });
+      }
+   
+}
+ 
 
 const number=route.params.number
     const [loader,setloader]=useState(false) //loader
@@ -205,14 +228,8 @@ const number=route.params.number
          
           setloader(false)
           if(value1==null||value2==null||value3==null||value4==null){
-            
-            ToastAndroid.showWithGravityAndOffset(
-                "OTP cannot be empty",
-                ToastAndroid.LONG,
-                ToastAndroid.CENTER,
-                25,
-                50
-              );
+            iostoast("OTP cannot be empty")
+          
           }
           else{
            const otp=`${value1}${value2}${value3}${value4}`
@@ -295,14 +312,8 @@ const number=route.params.number
               
            
                else{
-                
-                ToastAndroid.showWithGravityAndOffset(
-                  "invalid OTP",
-                  ToastAndroid.LONG,
-                  ToastAndroid.CENTER,               
-                  25,
-                  50
-                );
+                iostoast("invalid OTP")
+               
                 setloader(false)
                 
                
@@ -315,13 +326,7 @@ const number=route.params.number
         }catch(err){
             setloader(false)
             console.log(err)
-            ToastAndroid.showWithGravityAndOffset(
-                "invalid OTP",
-                ToastAndroid.LONG,
-                ToastAndroid.CENTER,
-                25,
-                50
-              );
+            iostoast("invalid OTP")
             
         }
 
