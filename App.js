@@ -25,6 +25,7 @@ import BookAppoinment from './screens/BookAppoinment';
 import BookingHistory from './screens/BookingHistory';
 import { Provider as PaperProvider } from 'react-native-paper';
 import NotificationMain from './screens/NotificationMain';
+import {ToastProvider} from "react-native-fast-toast";
 
 
 
@@ -182,7 +183,7 @@ if(isLoading){
 
  
  return(
- 
+ <ToastProvider>
   <Context>
    <AuthContext.Provider value={authContext}>
   <NavigationContainer>
@@ -190,7 +191,7 @@ if(isLoading){
   </NavigationContainer>
   </AuthContext.Provider>
   </Context>
-  
+  </ToastProvider>
   
  )
 

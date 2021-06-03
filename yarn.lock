@@ -6535,6 +6535,11 @@ react-native-events-calendar@^1.0.8:
     lodash "^4.17.4"
     moment "^2.18.1"
 
+react-native-fast-toast@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-fast-toast/-/react-native-fast-toast-2.3.0.tgz#676eeff766777ad61d20ba2316275b2ac21ab145"
+  integrity sha512-RsQd44vLDgXiegKg/8/yISARAcIBm55mrLtMiE/X2LN2lk6UzgsjNZkLNfW3rm/ot/OMnh9y4du5WcpBsnyUSw==
+
 react-native-gesture-handler@~1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.8.0.tgz"

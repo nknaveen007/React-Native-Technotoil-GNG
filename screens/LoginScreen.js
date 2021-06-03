@@ -1,11 +1,14 @@
 import React,{useState,useRef,useEffect, useContext} from 'react'
-import { ActivityIndicator, Image, SafeAreaView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View,StatusBar } from 'react-native'
+import { ActivityIndicator, Image, SafeAreaView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View,StatusBar,Platform } from 'react-native'
 import {useFonts} from 'expo-font';
 import CountryPicker from 'react-native-country-picker-modal'
 import validator from 'validator';
 import instance from '../src/api/Gng';
 import {Overlay } from 'react-native-elements'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useToast} from "react-native-fast-toast";
+
+
 
 
 
@@ -13,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const LoginScreen = ({navigation}) => {
 
     const [visible, setVisible] = useState(false);  //overly
+    const toast = useToast()
 
     
     
@@ -38,6 +42,25 @@ const LoginScreen = ({navigation}) => {
     setcallingcode(country.callingCode[0])
   }
 
+  const iostoast=(value)=>{
+      if(Platform.OS=='android'){
+        ToastAndroid.showWithGravityAndOffset(
+            value,
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM,
+            25,
+            50
+          );
+      }else{
+        toast.show(value, {
+            duration: 3000,
+            style: { paddingHorizontal:20,borderRadius:20,backgroundColor:'#f2f0f0',bottom:'-13%',paddingVertical:15},
+            textStyle: { fontSize: 14,color:'black'},
+            
+          });
+      }
+   
+}
  
   
   
@@ -45,6 +68,7 @@ const LoginScreen = ({navigation}) => {
    const validation =async()=>{
    
      const valid=validator.isMobilePhone(value1)
+    
     if(value1!==''){
         if(valid&&value1.length===10){
             
@@ -71,25 +95,13 @@ const LoginScreen = ({navigation}) => {
             
         }
         else{
-            ToastAndroid.showWithGravityAndOffset(
-                "Please enter the valid Mobile Number",
-                ToastAndroid.SHORT,
-                ToastAndroid.BOTTOM,
-                25,
-                50
-              );
+            iostoast("Please enter the valid Mobile Number")
+           
         }
         
     }
     else{
-        ToastAndroid.showWithGravityAndOffset(
-            "Mobile Number cannot be empty",
-            ToastAndroid.SHORT,
-            ToastAndroid.BOTTOM,
-            25,
-            50
-          );
-       
+       iostoast("Mobile Number cannot be empty")
        
     }
    
@@ -151,6 +163,7 @@ const LoginScreen = ({navigation}) => {
                     value={value1}
                     placeholder='Mobile Number' 
                     keyboardType='numeric'
+                    returnKeyType='done'
                     style={styles.inputStyle}/>
                 </View>
 

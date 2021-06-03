@@ -13,6 +13,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CommonActions,useNavigation,useFocusEffect} from '@react-navigation/native'
 import {AuthContext} from '../components/Context';
+import {useToast} from "react-native-fast-toast";
 
 
 
@@ -103,7 +104,27 @@ const ProfileScreen = ({navigation,route}) => {
   const [dateofbirth1, setdateofbirth1] = useState('')
 
   const [imagename, setimagename] = useState('')
+  const toast=useToast()
 
+  const iostoast=(value)=>{
+    if(Platform.OS=='android'){
+      ToastAndroid.showWithGravityAndOffset(
+          value,
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+          25,
+          50
+        );
+    }else{
+      toast.show(value, {
+          duration: 3000,
+          style: { paddingHorizontal:20,borderRadius:20,backgroundColor:'#f2f0f0',bottom:'-13%',paddingVertical:15},
+          textStyle: { fontSize: 14,color:'black'},
+          
+        });
+    }
+ 
+}
   
 
   const getOrdinalNum = (number) => {
@@ -303,14 +324,8 @@ const ProfileScreen = ({navigation,route}) => {
   const validation=async()=>{
 
       if(name===''||lastname===''||address===''||zipcode===''||email===''){
-
-        ToastAndroid.showWithGravityAndOffset(
-            "Required fields (*) cannot be empty",
-            ToastAndroid.SHORT,
-            ToastAndroid.BOTTOM,
-            25,
-            50
-          );
+        iostoast("Required fields (*) cannot be empty")
+        
       }
       else{
          const valid=validator.isEmail(email)
@@ -370,13 +385,8 @@ const ProfileScreen = ({navigation,route}) => {
                               
                               console.log('signin',localnumber,localcid)
                               setloader(false)
-                              ToastAndroid.showWithGravityAndOffset(
-                               "Profile updated successfully",
-                               ToastAndroid.LONG,
-                               ToastAndroid.CENTER,
-                               25,
-                               50
-                             );
+                              iostoast("Profile updated successfully")
+                            
                              signIn(localnumber) 
                           }catch(err){
                             
@@ -392,13 +402,8 @@ const ProfileScreen = ({navigation,route}) => {
             }
            }
            else{
-            ToastAndroid.showWithGravityAndOffset(
-              "invalid e-mail address",
-              ToastAndroid.LONG,
-              ToastAndroid.CENTER,
-              25,
-              50
-            );
+             iostoast("invalid e-mail address")
+          
 
            }
            

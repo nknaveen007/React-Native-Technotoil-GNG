@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import React, {useState,useEffect} from 'react';
-import {StyleSheet, View, ScrollView, Text, TouchableOpacity, ActivityIndicator,FlatList,SafeAreaView,Alert,ToastAndroid,Image} from 'react-native';
+import {StyleSheet, View, ScrollView, Text, TouchableOpacity, ActivityIndicator,FlatList,SafeAreaView,Alert,ToastAndroid,Image,Platform} from 'react-native';
 import {Calendar,calendarTheme} from 'react-native-calendars';
 import { AntDesign,FontAwesome5 } from '@expo/vector-icons';
 import {useFonts} from 'expo-font';
@@ -11,6 +11,7 @@ import {Overlay } from 'react-native-elements'
 import { Ionicons,MaterialCommunityIcons  } from '@expo/vector-icons'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import {useToast} from "react-native-fast-toast";
 
 
 const BookAppoinment = ({navigation}) => {
@@ -53,6 +54,27 @@ const BookAppoinment = ({navigation}) => {
 
     const [checked, setChecked] = useState(false);
     const [selectedTimeSlot, setselectedTimeSlot] = useState([])
+    const toast =useToast()
+
+    const iostoast=(value)=>{
+      if(Platform.OS=='android'){
+        ToastAndroid.showWithGravityAndOffset(
+            value,
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM,
+            25,
+            50
+          );
+      }else{
+        toast.show(value, {
+            duration: 3000,
+            style: { paddingHorizontal:20,borderRadius:20,backgroundColor:'#f2f0f0',bottom:'-13%',paddingVertical:15},
+            textStyle: { fontSize: 14,color:'black'},
+            
+          });
+      }
+   
+}
 
     useEffect(() => {
 
@@ -231,13 +253,8 @@ setChecked(false)
                           
                           
                         setloader(false)
-                        ToastAndroid.showWithGravityAndOffset(
-                          "Successfully booking is scheduled",
-                          ToastAndroid.LONG,
-                          ToastAndroid.TOP,
-                          25,
-                          50
-                        );
+                        iostoast("Successfully booking is scheduled")
+                        
                         
                           Alert.alert(
                             'Thanks for your booking', 'our sales representative will get in touch 30 minutes before the start of the video sales call',[

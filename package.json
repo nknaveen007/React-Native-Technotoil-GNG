@@ -49,6 +49,7 @@
     "react-native-country-picker-modal": "^2.0.0",
     "react-native-elements": "^3.2.0",
     "react-native-events-calendar": "^1.0.8",
+    "react-native-fast-toast": "^2.3.0",
     "react-native-gesture-handler": "~1.8.0",
     "react-native-otp-textinput": "^0.0.8",
     "react-native-paper": "^4.7.1",

@@ -11,6 +11,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext,StateContext} from '../components/Context'
 import { TextInput,Divider,Dialog,Portal,Searchbar,List} from 'react-native-paper';
+import {useToast} from "react-native-fast-toast";
 
 
 
@@ -27,7 +28,7 @@ const ProfileScreen = ({navigation,route}) => {
 
   const [countrydata, setcountrydata] = useState({countryName:'Country'})
   const [statedata, setstatedata] = useState({StateName:'State'})
-
+  const toast=useToast()
   const {authContext}=useContext(AuthContext)
   const [ConName,ConImage,ConLastName,setConName,setConImage,setConLastName]=useContext(StateContext)
   
@@ -105,6 +106,26 @@ const ProfileScreen = ({navigation,route}) => {
   const [mode, setMode] = useState();
   const [show, setShow] = useState(false);
   const [dateofbirth1, setdateofbirth1] = useState('')
+
+  const iostoast=(value)=>{
+    if(Platform.OS=='android'){
+      ToastAndroid.showWithGravityAndOffset(
+          value,
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+          25,
+          50
+        );
+    }else{
+      toast.show(value, {
+          duration: 3000,
+          style: { paddingHorizontal:20,borderRadius:20,backgroundColor:'#f2f0f0',bottom:'-13%',paddingVertical:15},
+          textStyle: { fontSize: 14,color:'black'},
+          
+        });
+    }
+ 
+}
 
   const getOrdinalNum = (number) => {
     let selector;
@@ -498,13 +519,8 @@ const searchFilter2=(text)=>{
   const validation=async()=>{
 
       if(name===''||lastname===''||address===''||zipcode===''||email===''){
-        ToastAndroid.showWithGravityAndOffset(
-            "Required fields (*) cannot be empty",
-            ToastAndroid.SHORT,
-            ToastAndroid.BOTTOM,
-            25,
-            50
-          );
+        iostoast("Required fields (*) cannot be empty")
+       
       }
       else{
         
@@ -581,23 +597,13 @@ const searchFilter2=(text)=>{
                         
                           setloader(false)
                            setVisible(false)
-                           ToastAndroid.showWithGravityAndOffset(
-                            "Profile updated successfully",
-                            ToastAndroid.LONG,
-                            ToastAndroid.CENTER,
-                            25,
-                            50
-                          );
+                           iostoast("Profile updated successfully")
+                          
                            navigation.goBack()
             }
            else{
-            ToastAndroid.showWithGravityAndOffset(
-              "invalid e-mail address",
-              ToastAndroid.LONG,
-              ToastAndroid.CENTER,
-              25,
-              50
-            );
+             iostoast("invalid e-mail address")
+           
 
            }
            
